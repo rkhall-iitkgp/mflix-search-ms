@@ -1,3 +1,3 @@
 const AutoComplete = require("./autocomplete");
-
-module.exports = { AutoComplete };
+const FuzzySearch = require("./fuzzysearch");
+module.exports = { AutoComplete ,FuzzySearch};

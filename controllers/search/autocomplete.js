@@ -44,7 +44,7 @@ async function AutoComplete(req, res) {
 
 		// print results
 		res.json(result);
-	} catch {
+	} catch(error) {
 		console.log("Error: ", error);
 		res.json({
 			message: "Error: " + error.message,

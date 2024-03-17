@@ -1,5 +1,5 @@
 const express = require("express");
-const { AutoComplete } = require("../controllers/search");
+const { AutoComplete,FuzzySearch } = require("../controllers/search");
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -7,5 +7,5 @@ router.get("/", (req, res) => {
 });
 
 router.get("/autocomplete", AutoComplete);
-
+router.get("/fuzzysearch",FuzzySearch);
 module.exports = router;
