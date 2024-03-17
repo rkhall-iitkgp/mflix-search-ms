@@ -9,13 +9,13 @@ async function FuzzySearch(req, res) {
             {
               $search: {
                 index: "autocomplete",
-                text: {
+                autocomplete: {
+                  path: "title",
                   query: query,
-                  path: "plot",
                   fuzzy: {
                     maxEdits: 2,
                     prefixLength: 0,
-                    maxExpansions: 50
+                    maxExpansions: 10
                   }
                 }
               }
@@ -32,6 +32,23 @@ async function FuzzySearch(req, res) {
                 }
               }
           ]
+    // const agg = [
+    //   {
+    //     $search: {
+    //       text: {
+    //         path: "title",
+    //         query: query,
+    //       }
+    //     }
+    //   },
+    //   {
+    //     $project: {
+    //       "_id": 0,
+    //       "title": 1,
+    //       score: { $meta: "searchScore" }
+    //     }
+    //   }
+    // ]
 		// run pipelines
 		const result = await Movie.aggregate(agg);
 
