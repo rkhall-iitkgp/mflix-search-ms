@@ -15,12 +15,10 @@ async function AutoComplete(req, res) {
 								autocomplete: {
 									query: query,
 									path: "title",
-								},
-							},
-							{
-								autocomplete: {
-									query: query,
-									path: "plot",
+									fuzzy: {
+										maxEdits: 1,
+										prefixLength: 4,
+									},
 								},
 							},
 						],
@@ -33,18 +31,23 @@ async function AutoComplete(req, res) {
 			},
 			{
 				$project: {
-					_id: 0,
+					_id: 1,
 					title: 1,
-					plot: 1,
+					tomatoes: {
+						viewer: {
+							meter: 1,
+						},
+					},
 				},
 			},
 		];
 		// run pipelines
 		const result = await Movie.aggregate(agg);
 
+		// console.log("result", result);
 		// print results
-		res.json(result);
-	} catch {
+		res.json({ result });
+	} catch (error) {
 		console.log("Error: ", error);
 		res.json({
 			message: "Error: " + error.message,
