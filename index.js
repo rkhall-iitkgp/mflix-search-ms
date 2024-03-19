@@ -35,7 +35,6 @@ app.use(express.json());
 const PORT = process.env.PORT || 5000;
 
 const { authRouter, searchRouter } = require("./routes");
-const { populateTiers, populateMovies } = require("./utils");
 
 app.get("/", (req, res) => {
   res.send("Server is up and runnning");
