@@ -24,7 +24,7 @@ const OTPhelper = async (req, res) => {
       "Verification Email",
       `<h1>Please confirm your OTP </h1>
             <p> here is your OTP code:-> ${otp} </p>
-        `
+        `,
     );
     console.log("Email sent successfully: ", mailResponse);
 
@@ -41,7 +41,7 @@ const OTPhelper = async (req, res) => {
         }
         console.log("OTP stored in Redis for user", email);
         console.log(res);
-      }
+      },
     );
     res.status(200).json({
       success: true,
@@ -119,4 +119,4 @@ const sendOTP = async (req, res) => {
   }
 };
 
-module.exports =  sendOTP ;
+module.exports = sendOTP;

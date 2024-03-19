@@ -2,163 +2,155 @@ const bcrypt = require("bcrypt");
 const { User } = require("../../models");
 const { client } = require("../../redis");
 
-const verifyOTP = async (req, res)=>{
+const verifyOTP = async (req, res) => {
+  try {
+    const { flag } = req.body;
+    // flag == 1 if updatePassword else register user
+    if (flag) {
+      try {
+        const { otp, email, newPassword } = req.body;
+        if (!otp)
+          return res
+            .status(400)
+            .json({ code: -1, success: false, message: "Please enter OTP" });
 
-    try{
-        const { flag } = req.body;
-        // flag == 1 if updatePassword else register user
-        if(flag){
-            try {
-                const { otp, email, newPassword } = req.body;
-                if (!otp)
-                    return res
-                        .status(400)
-                        .json({ code: -1, success: false, message: "Please enter OTP" });
-                
-                if (!client.isOpen)
-                    return res
-                        .status(500)
-                        .json({ success: false, message: "Redis client error", code: -4 });
-                const secret = await client.get(req.body.email, (err, res) => {
-                    if (err) console.log(err);
-                    console.log(res);
-                });
-                const user = await User.findOne({email})
-                    .select("+password")
-                    .exec();
-                if (!user) {
-                    return res
-                        .status(400)
-                        .json({ success: false, message: "User not found", code: -2 });
-                }
-                // Verify OTP	
-                if (otp===secret) {
-                    // OTP verification successful
-                    // Proceed with login logic
-                    bcrypt.hash(newPassword, 10, async (err, hash) => {
-                        if (err) {
-                            return res.status(500).json({
-                                success: false,
-                                message: "Error in hashing password",
-                                code: -4,
-                            });
-                        }
-                        user.password = hash;
-                        await user.save();
-                        return res.status(200).json({
-                            success: true,
-                            message: "Password updated successfully",
-                            code: 0,
-                        });
-                    });
-                    // res.status(200).json({ success: true, message: "OTP verification successful" });
-                } else {
-                    // OTP verification failed
-                    res
-                        .status(400)
-                        .json({ success: false, message: "Invalid OTP", code: -2 });
-                }
-            } catch (e) {
-                res.status(400).json({
-                    success: false,
-                    message: "Internal Server Error",
-                    error: e.message,
-                    code: -5,
-                });
-            }
+        if (!client.isOpen)
+          return res
+            .status(500)
+            .json({ success: false, message: "Redis client error", code: -4 });
+        const secret = await client.get(req.body.email, (err, res) => {
+          if (err) console.log(err);
+          console.log(res);
+        });
+        const user = await User.findOne({ email }).select("+password").exec();
+        if (!user) {
+          return res
+            .status(400)
+            .json({ success: false, message: "User not found", code: -2 });
         }
-        
+        // Verify OTP
+        if (otp === secret) {
+          // OTP verification successful
+          // Proceed with login logic
+          bcrypt.hash(newPassword, 10, async (err, hash) => {
+            if (err) {
+              return res.status(500).json({
+                success: false,
+                message: "Error in hashing password",
+                code: -4,
+              });
+            }
+            user.password = hash;
+            await user.save();
+            return res.status(200).json({
+              success: true,
+              message: "Password updated successfully",
+              code: 0,
+            });
+          });
+          // res.status(200).json({ success: true, message: "OTP verification successful" });
+        } else {
+          // OTP verification failed
+          res
+            .status(400)
+            .json({ success: false, message: "Invalid OTP", code: -2 });
+        }
+      } catch (e) {
+        res.status(400).json({
+          success: false,
+          message: "Internal Server Error",
+          error: e.message,
+          code: -5,
+        });
+      }
+    } else {
 
-        /*
+    /*
             IF YOU ARE IN SIGNUP MODE
-        */ 
-        
-        else{
+        */
+      try {
+        //get input data
+        const { name, email, password, phoneNumber, dob, otp, password2 } =
+          req.body;
 
-            try {
-                //get input data
-                const {name, email, password, phoneNumber, dob, otp, password2}= req.body
-                
-                // Check if All Details are there or not
-                if (!name ||
-                    !email ||
-                    !password ||
-                    !otp || !password2
-                ) {
-                    return res.status(403).send({
-                        success: false,
-                        message: "All Fields are required",
-                    });
-                }
-                if(password !== password2){
-                    return res.status(403).json({
-                        success: false,
-                        message: "Password Doesn't Match"
-                    })
-                }
-                //check if use already exists?
-                const existingUser = await User.findOne({email})
-                if(existingUser){
-                    return res.status(400).json({
-                        success: false,
-                        message: "User already exists"
-                    })
-                }
-        
-                // Find the most recent OTP for the email
-                const response = await client.get(req.body.email, (err, res) => {
-                    if (err) console.log(err);
-                    console.log(res);
-                });
-        
-                console.log("Latest OTP", response);
-                if (response.length === 0) {
-                    // OTP not found for the email
-                    return res.status(400).json({
-                        success: false,
-                        message: "The OTP is not valid",
-                    });
-                } else if (otp !== response) {
-                    // Invalid OTP
-                    return res.status(400).json({
-                        success: false,
-                        message: "The OTP is not valid",
-                    });
-                }
-        
-                //secure password
-                let hashedPassword
-                try {
-                    hashedPassword = await bcrypt.hash(password,10)
-                } catch (error) {
-                    return res.status(500).json({
-                        success: false,
-                        message : `Hashing pasword error for ${password}: `+error.message
-                    })
-                }
-        
-                const user = await User.create({
-                    name, email, phoneNumber, dob, password:hashedPassword
-                })
-        
-                return res.status(200).json({
-                    success: true,
-                    user,
-                    message: "user created successfully ✅"
-                })
-            } catch (error) {
-                console.error(error)
-                return res.status(500).json({
-                    success: false,
-                    message : "User registration failed"
-                })
-            }
+        // Check if All Details are there or not
+        if (!name || !email || !password || !otp || !password2) {
+          return res.status(403).send({
+            success: false,
+            message: "All Fields are required",
+          });
         }
-    }
-    catch (error) {
-        console.log(error.message);
-        return res.status(500).json({ success: false, error: error.message });
-    }
+        if (password !== password2) {
+          return res.status(403).json({
+            success: false,
+            message: "Password Doesn't Match",
+          });
+        }
+        //check if use already exists?
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+          return res.status(400).json({
+            success: false,
+            message: "User already exists",
+          });
+        }
 
-}
-module.exports = verifyOTP
+        // Find the most recent OTP for the email
+        const response = await client.get(req.body.email, (err, res) => {
+          if (err) console.log(err);
+          console.log(res);
+        });
+
+        console.log("Latest OTP", response);
+        if (response.length === 0) {
+          // OTP not found for the email
+          return res.status(400).json({
+            success: false,
+            message: "The OTP is not valid",
+          });
+        } else if (otp !== response) {
+          // Invalid OTP
+          return res.status(400).json({
+            success: false,
+            message: "The OTP is not valid",
+          });
+        }
+
+        //secure password
+        let hashedPassword;
+        try {
+          hashedPassword = await bcrypt.hash(password, 10);
+        } catch (error) {
+          return res.status(500).json({
+            success: false,
+            message: `Hashing pasword error for ${password}: ` + error.message,
+          });
+        }
+
+        const user = await User.create({
+          name,
+          email,
+          phoneNumber,
+          dob,
+          password: hashedPassword,
+        });
+
+        return res.status(200).json({
+          success: true,
+          user,
+          message: "user created successfully ✅",
+        });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+          success: false,
+          message: "User registration failed",
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+module.exports = verifyOTP;
