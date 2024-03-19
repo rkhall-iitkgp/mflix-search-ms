@@ -9,9 +9,9 @@ require("./database")();
 const cors = require("cors");
 
 app.use(
-	cors({
-		origin: process.env.FRONTEND_URL || "http://localhost:3000",
-	})
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  }),
 );
 
 app.use(express.json());
@@ -21,12 +21,12 @@ const { authRouter, searchRouter } = require("./routes");
 const { populateTiers } = require("./utils");
 
 app.get("/", (req, res) => {
-	res.send("Server is up and runnning");
+  res.send("Server is up and runnning");
 });
 
 app.use("/auth", authRouter);
 app.use("/search", searchRouter);
 
 app.listen(PORT, () => {
-	console.log(`Server running at PORT: ${PORT}`);
+  console.log(`Server running at PORT: ${PORT}`);
 });
