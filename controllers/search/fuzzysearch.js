@@ -5,6 +5,13 @@ async function FuzzySearch(req, res) {
     // define pipeline
     const { query } = req.query;
 
+    if (!query || query.length < 3) {
+      return res.status(400).json({
+        status: false,
+        message: "Error: " + "Query length is too small",
+      })
+    }
+
     const agg = [
       {
         $search: {
@@ -53,10 +60,14 @@ async function FuzzySearch(req, res) {
     const result = await Movie.aggregate(agg);
 
     // print results
-    res.json(result);
+    res.status(200).json({
+      status: true,
+      result
+    });
   } catch {
     console.log("Error: ", error);
-    res.json({
+    res.status.json({
+      status: false,
       message: "Error: " + error.message,
     });
   }
