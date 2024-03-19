@@ -1,11 +1,8 @@
-const {login} = require('./login')
-const {signup, sendotp} = require('./signup')
-const {updatePasswordOTP, verifyOTPUpdatePassword} = require('./updatePassword');
-
+const login = require('./login')
+const sendOTP = require('./sendOTP')
+const verifyOTP = require('./verifyOTP')
 module.exports = {
     login,
-    signup,
-    sendotp,
-    updatePasswordOTP,
-    verifyOTPUpdatePassword
+    sendOTP,
+    verifyOTP
 };

@@ -1,19 +1,14 @@
 const express = require("express");
 const router = express.Router();
-
-router.post("/register", (req, res) => {
-  // TODO : Add schema verifications
-  res.send("hello");
-});
 const {auth} = require('../middlewares')
-const {updatePasswordOTP, verifyOTPUpdatePassword, signup, sendotp, login} = require('../controllers/auth');
 
+const {sendOTP, login, verifyOTP} = require('../controllers/auth');
+
+// login into application
 router.post('/login', login)
-router.post('/signup', signup)
-router.post('/signup/sendotp', sendotp)
-router.post("/user/password", auth, updatePasswordOTP);
-router.patch("/user/password/verifyOTP", auth, verifyOTPUpdatePassword);
-
-
+// send otp for Register and Reset Password
+router.post('/sendOTP', auth, sendOTP)
+// verify otp for Register and Reset Password
+router.post("/verifyOTP", auth, verifyOTP)
 
 module.exports = router;

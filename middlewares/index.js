@@ -1,4 +1,2 @@
-const {auth} = require('./authMiddle');
-module.exports = {
-    auth
-};
+const auth = require('./authMiddle');
+module.exports = {auth}

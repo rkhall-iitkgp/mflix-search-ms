@@ -1,15 +1,9 @@
 const bcrypt = require('bcrypt')
-const { User } = require("../../models")
 const jwt = require('jsonwebtoken')
-const hotp = require('hotp')
-const redis = require('redis');
-const { client } = require("../../redis");
-const { mailSender } = require('../../utils');
-const session = require('express-session');
-require('dotenv').config()
+const { User } = require("../../models")
 
-exports.login = async (req, res) => {
 
+const login = async (req, res) => {
     try {
         //data fetch
         const { email, password } = req.body
@@ -92,3 +86,5 @@ exports.login = async (req, res) => {
     }
 
 }
+
+module.exports = login
