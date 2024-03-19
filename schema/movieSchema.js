@@ -16,18 +16,22 @@ const movieSchema = mongoose.Schema({
   awards: { wins: Number, nominations: Number, text: String },
   lastUpdated: { type: Date, required: true },
   year: { type: Number, required: true },
-  imdb: { rating: Number, votes: Number, id: Number },
-  countries: [{ type: String }],
-  type: { type: String },
+  imdb: {
+    rating: { type: Number, required: true },
+    votes: { type: Number, required: true },
+    id: { type: Number, required: true },
+  },
+  countries: [{ type: String, required: true }],
+  type: { type: String, required: true },
   num_mflix_comments: { type: Number, required: true },
   tomatoes: {
     viewer: {
-      rating: { type: Number },
-      numReviews: { type: Number },
-      meter: { type: Number },
+      rating: { type: Number, required: true },
+      numReviews: { type: Number, required: true },
+      meter: { type: Number, required: true },
     },
-    dvd: { type: Date },
-    lastupdated: { type: Date },
+    dvd: { type: Date, required: true },
+    lastupdated: { type: Date, required: true },
   },
 });
 

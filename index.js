@@ -4,6 +4,8 @@ dotenv.config();
 const express = require("express");
 const app = express();
 
+require("./database")();
+
 const cors = require("cors");
 
 app.use(
@@ -16,13 +18,12 @@ app.use(express.json());
 const PORT = process.env.PORT || 5000;
 
 const { authRouter, searchRouter } = require("./routes");
-const { logger } = require("./middlewares");
 
 app.get("/", (req, res) => {
   res.send("Server is up and runnning");
 });
 
-app.use("/auth", logger, authRouter);
+app.use("/auth", authRouter);
 app.use("/search", searchRouter);
 
 app.listen(PORT, () => {
