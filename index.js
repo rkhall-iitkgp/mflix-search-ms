@@ -22,9 +22,9 @@ app.use(
 );
 
 // Redis Server connection
-const { redis } = require("./redis");
+const { client } = require("./redis");
 try {
-  const client = redis.createClient({ url: 'redis://redis:6379' });
+  // const client = redis.createClient({ url: 'redis://redis:6379' });
   client.connect();
   client.on("error", (err) => console.log("Redis client error: ", err));
   client.on("connect", () => console.log("Connected to redis"));
