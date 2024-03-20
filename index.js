@@ -17,7 +17,7 @@ app.use(
 app.use(express.json());
 const PORT = process.env.PORT || 5000;
 
-const { authRouter, searchRouter } = require("./routes");
+const { authRouter, searchRouter, paymentRouter } = require("./routes");
 const { populateTiers, populateMovies } = require("./utils");
 
 app.get("/", (req, res) => {
@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRouter);
 app.use("/search", searchRouter);
-
+app.use("/payment", paymentRouter);
 app.listen(PORT, () => {
   console.log(`Server running at PORT: ${PORT}`);
 });

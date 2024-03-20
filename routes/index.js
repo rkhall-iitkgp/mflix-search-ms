@@ -1,3 +1,4 @@
 const searchRouter = require("./searchRoutes");
 const authRouter = require("./authRoutes");
-module.exports = { searchRouter, authRouter };
+const paymentRouter = require("./paymentRoutes");
+module.exports = { searchRouter, authRouter, paymentRouter };
