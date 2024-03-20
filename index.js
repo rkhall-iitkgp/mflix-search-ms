@@ -5,8 +5,8 @@ const express = require("express");
 const app = express();
 
 require("./database")();
-
-const cors = require("cors");
+require("./ml_model")();
+const cors = require("cors");	
 
 app.use(
 	cors({
