@@ -3,12 +3,12 @@ const { Movie } = require("../../models");
 async function AutoComplete(req, res) {
   try {
     const { query } = req.query;
-    
+
     if (!query || query.length < 3) {
       return res.status(400).json({
         status: false,
         message: "Error: " + "Query length is too small",
-      })
+      });
     }
 
     const agg = [
@@ -51,9 +51,8 @@ async function AutoComplete(req, res) {
     // print results
     res.status(200).json({
       status: true,
-      result
+      result,
     });
-
   } catch (error) {
     console.log("Error: ", error);
     res.status(500).json({
