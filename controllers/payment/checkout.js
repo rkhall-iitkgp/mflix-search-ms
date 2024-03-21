@@ -19,17 +19,21 @@ async function checkout(req, res) {
     //check if already a stripe customer if not a stripe customer then create
 
     let payment = await Payment.findOne({ userId: user.userId });
-
+    let customer
     if (payment == null) {
-      const customer = await stripe.customers.create({
+      customer = await stripe.customers.create({
         email: user.email,
       });
       payment = await Payment.insertOne({
         userId: user.id,
-        stripeCustomerId: customer.id,
+        stripeCustomerId: customer.stripeCustomerId,
         tierId: product.tierId,
+        renewalType: product.renewalType
       },
       );
+    }
+    else {
+      customer = payment.stripeCustomerId;
     }
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -47,7 +51,7 @@ async function checkout(req, res) {
           },
         },
       ],
-      customer: stripeCustomer.stripeCustomerId,
+      customer: customer.stripeCustomerId,        //customerid of stripe
       payment_method_types: ["card"],
       mode: "payment",
       success_url: process.env.STRIPE_PAYMENT_SUCCESS_URL, // Redirect to frontend success page

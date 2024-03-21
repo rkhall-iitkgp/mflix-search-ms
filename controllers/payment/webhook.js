@@ -1,17 +1,16 @@
 const Stripe = require("stripe");
-
+import { User, Payment } from '../../models';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 async function webhook(req, res) {
   const payload = req.body;
   const sig = req.headers["stripe-signature"];
-  // const STRIPE_WEBHOOK_SECRET =
-  // "whsec_0225c3824f26f499a271dc5984064117d3142e92524d68edda8e959b8eb1e25e";
+  const STRIPE_WEBHOOK_SECRET = process.env.WEBHOOK_SECRET_KEY
   try {
     const event = stripe.webhooks.constructEvent(
       payload,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET
+      STRIPE_WEBHOOK_SECRET
     );
 
     if (event.type === "checkout.session.completed") {
@@ -19,8 +18,35 @@ async function webhook(req, res) {
       console.log(session);
       const userId = session.metadata.userId;
 
-      // Perform backend actions using userId
-      console.log("Payment successful for user:", userId);
+      // Find the user based on userId
+      const user = await User.findOne({ _id: userId });
+      if (user) {
+        const updatedPayment = await Payment.findOneAndUpdate(
+          { userId: userId },
+          {
+            $set: {
+              stripeCustomerId: session.customer,
+              transactionId: session.payment_intent,
+              paymentType: session.payment_method_types[0].toUpperCase(),
+              //  expiredOn
+
+            }
+          },
+          { new: true }
+        );
+
+        if (updatedPayment) {
+          const updatedUser = User.findOneAndUpdate(
+            { _id: userId },
+            {
+              $set: {
+                payments: updatedPayment._id
+              }
+            },
+            { new: true }
+          )
+        }
+      }
     }
 
     res.json({ received: true });
