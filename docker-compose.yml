@@ -21,6 +21,11 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
 volumes:
   redis-data:
     driver: local
