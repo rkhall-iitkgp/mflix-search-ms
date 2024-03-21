@@ -29,6 +29,8 @@ const accountSchema = mongoose.Schema({
     },
 
     payments: [{ type: mongoose.Schema.Types.ObjectId, ref: "payments" }],
+
+    userProfiles: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
 });
 
 module.exports = accountSchema;
