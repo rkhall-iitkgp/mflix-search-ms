@@ -101,7 +101,6 @@ const verifyOTP = async (req, res) => {
           console.log(res);
         });
 
-        console.log("Latest OTP", response);
         if (response.length === 0) {
           // OTP not found for the email
           return res.status(400).json({

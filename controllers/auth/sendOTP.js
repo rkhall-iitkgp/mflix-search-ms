@@ -3,12 +3,12 @@ const hotp = require("hotp");
 
 const { User } = require("../../models");
 const { client } = require("../../redis");
-const { mailSender } = require("../../utils");
+const {mailSender} = require("../../utils");
 
 const OTPhelper = async (req, res) => {
   try {
     const { email } = req.body;
-    const otp = hotp.totp(process.env.OTP_KEY, {
+    const otp = hotp.totp(email, {
       digits: process.env.OTP_DIGITS,
       timeStep: 300,
     });
@@ -17,17 +17,16 @@ const OTPhelper = async (req, res) => {
       return res
         .status(500)
         .json({ success: false, message: "Redis client error", code: -4 });
-    console.log(otp);
-
+    
+    
     const mailResponse = await mailSender(
       email,
       "Verification Email",
       `<h1>Please confirm your OTP </h1>
             <p> here is your OTP code:-> ${otp} </p>
-        `,
+        `
     );
-    console.log("Email sent successfully: ", mailResponse);
-
+    
     await client.set(
       email,
       otp,
@@ -39,9 +38,7 @@ const OTPhelper = async (req, res) => {
             .status(500)
             .json({ success: false, message: "Redis client error", code: -4 });
         }
-        console.log("OTP stored in Redis for user", email);
-        console.log(res);
-      },
+      }
     );
     res.status(200).json({
       success: true,
@@ -67,14 +64,13 @@ const sendOTP = async (req, res) => {
             code: -1,
           });
         }
-        console.log(password, newPassword, email);
+        
         const user = await User.findOne({ email }).select("+password").exec();
         if (!user) {
           return res
             .status(400)
             .json({ success: false, message: "User not found", code: -2 });
         }
-        console.log(password, " ", user);
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
           return res
@@ -83,7 +79,6 @@ const sendOTP = async (req, res) => {
         }
         // send otp to valid
         const success = await OTPhelper(req, res);
-        console.log(validPassword);
       } catch (error) {
         return res.status(401).json({
           success: false,
@@ -119,4 +114,4 @@ const sendOTP = async (req, res) => {
   }
 };
 
-module.exports = sendOTP;
+module.exports =  sendOTP ;

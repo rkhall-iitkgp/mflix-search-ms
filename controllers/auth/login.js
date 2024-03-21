@@ -13,10 +13,9 @@ const login = async (req, res) => {
         message: "Plz fill all the details carefully",
       });
     }
-    console.log("email: ", email);
+    
     //check for registered User
     let user = await User.findOne({ email }).select("+password").exec();
-    console.log("User Password", user);
     //if user not registered or not found in database
     if (!user) {
       return res.status(401).json({
@@ -63,7 +62,7 @@ const login = async (req, res) => {
       //password donot matched
       return res.status(403).json({
         success: false,
-        message: "Password incorrects⚠️",
+        message: "Invalid Credentials⚠️",
       });
     }
   } catch (error) {

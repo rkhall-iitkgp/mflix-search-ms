@@ -1,2 +1,4 @@
 const populateTiers = require("./populateTiers");
-module.exports = { populateTiers };
+// const populateMovies = require("./populateMovies");
+const mailSender = require('./mailSender');
+module.exports = { populateTiers, mailSender };
