@@ -5,4 +5,4 @@ const User = require("./userModel");
 const Admin = require("./adminModel");
 const Account = require("./accountModel");
 
-module.exports = { Payment, Tier, Movie, User, Admin };
+module.exports = { Payment, Tier, Movie, User, Admin, Account };
