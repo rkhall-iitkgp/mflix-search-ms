@@ -25,10 +25,16 @@ async function AutoComplete(req, res) {
               },
               {
                 autocomplete: {
-                  query: query,
-                  path: "plot",
-                },
-              },
+                    query: query, 
+                    path: "directors",
+                }
+              }, 
+              {
+                autocomplete: {
+                    query: query, 
+                    path: "cast",
+                }
+              }
             ],
             minimumShouldMatch: 1,
           },
@@ -41,7 +47,8 @@ async function AutoComplete(req, res) {
         $project: {
           _id: 0,
           title: 1,
-          plot: 1,
+          plot:1,
+          score: { $meta: "searchScore" },
         },
       },
     ];

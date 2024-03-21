@@ -5,9 +5,9 @@ const session = require("express-session");
 const app = express();
 
 require("./database")();
+require("./ml_model")();
+const cors = require("cors");	
 
-const cors = require("cors");
-// Express session
 app.use(
   session({
     secret: process.env.SESSION_SECRET,

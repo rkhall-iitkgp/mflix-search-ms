@@ -1,4 +1,4 @@
 const AutoComplete = require("./autocomplete");
 const FuzzySearch = require("./fuzzysearch");
-
-module.exports = { AutoComplete, FuzzySearch };
+const SemanticSearch=require('./semanticsearch')
+module.exports = { AutoComplete ,FuzzySearch,SemanticSearch};
