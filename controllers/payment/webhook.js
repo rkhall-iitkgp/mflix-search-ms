@@ -1,5 +1,5 @@
 const Stripe = require("stripe");
-import { User, Payment } from '../../models';
+const { User, Payment } = require('../../models')
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 async function webhook(req, res) {
@@ -19,13 +19,13 @@ async function webhook(req, res) {
       const userId = session.metadata.userId;
 
       // Find the user based on userId
-      const user = await User.findOne({ _id: userId });
-      if (user) {
+      const userPayment = await Payment.findOne({ userId: userId });
+      if (userPayment) {
         const updatedPayment = await Payment.findOneAndUpdate(
           { userId: userId },
           {
             $set: {
-              stripeCustomerId: session.customer,
+              //stripeCustomerId: session.customer,
               transactionId: session.payment_intent,
               paymentType: session.payment_method_types[0].toUpperCase(),
               //  expiredOn
@@ -36,7 +36,8 @@ async function webhook(req, res) {
         );
 
         if (updatedPayment) {
-          const updatedUser = User.findOneAndUpdate(
+          console.log("hello , i am updated payment")
+          const updatedUser = await User.findOneAndUpdate(
             { _id: userId },
             {
               $set: {

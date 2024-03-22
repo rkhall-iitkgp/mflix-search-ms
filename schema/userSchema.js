@@ -8,14 +8,6 @@ const userSchema = mongoose.Schema({
   phone: { type: Number, required: true },
   gender: { type: String, required: true },
 
-  subscriptionTier: {
-    tier: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "tier",
-      required: true,
-    },
-    bill: { type: mongoose.Schema.Types.ObjectId, ref: "payments" },
-  },
 
   payments: [{ type: mongoose.Schema.Types.ObjectId, ref: "payments" }],
   moviesWatched: [

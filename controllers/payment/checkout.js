@@ -14,6 +14,18 @@ async function checkout(req, res) {
       return res.status(401).json({ error: "UnAuthorized" });
     }
     //check for subscription already if already then return
+    // Get the current date
+    let currentDate = new Date();
+    let latestDate = new Date();
+
+    // Add 1 month to the current date
+    if (product.renewalType === "MONTHLY") {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    } else if (product.renewalType === "QUATERLY") {
+      currentDate.setMonth(currentDate.getMonth() + 3);
+    } else if (product.renewalType === "ANNUALLY") {
+      currentDate.setFullYear(currentDate.getFullYear() + 1);
+    }
 
 
     //check if already a stripe customer if not a stripe customer then create
@@ -24,34 +36,55 @@ async function checkout(req, res) {
       customer = await stripe.customers.create({
         email: user.email,
       });
-      payment = await Payment.insertOne({
-        userId: user.id,
-        stripeCustomerId: customer.stripeCustomerId,
+      payment = await Payment.create({
+        userId: user.userId,
+        stripeCustomerId: customer.id, // Use customer.id instead of customer.stripeCustomerId
         tierId: product.tierId,
-        renewalType: product.renewalType
-      },
-      );
+        renewalType: product.renewalType,
+        expiredOn: currentDate
+      });
     }
     else {
+      if (payment.expiredOn > latestDate) {
+        console.log(payment.expiredOn, latestDate)
+
+        return res.json({ error: "you already have a subscription plan" })
+      }
+      const updatedPayment = await Payment.findOneAndUpdate(
+        { userId: user.userId },
+        {
+          $set: {
+            expiredOn: currentDate,
+            tierId: product.tierId,
+            renewalType: product.renewalType,
+
+
+          }
+        },
+        { new: true }
+      );
+
       customer = payment.stripeCustomerId;
     }
     const session = await stripe.checkout.sessions.create({
       line_items: [
+
         {
+          quantity: 1,
           price_data: {
-            currency: "inr",
+            currency: "usd",
             product_data: {
-              type: product.type,
-              description: product.description,
-              period: product.period,
-              tier: product.tier
+              name: product.type,
+              //description: product.description,
+              // period: product.period,
+              //  tier: product.tier
 
             },
             unit_amount: product.price * 100,
           },
         },
       ],
-      customer: customer.stripeCustomerId,        //customerid of stripe
+      customer: customer.id,        //customerid of stripe
       payment_method_types: ["card"],
       mode: "payment",
       success_url: process.env.STRIPE_PAYMENT_SUCCESS_URL, // Redirect to frontend success page
@@ -60,10 +93,15 @@ async function checkout(req, res) {
         userId: user.userId, // Include the user ID as metadata
       },
     });
-    res.json({ sessionId: session.id });
+    // console.log("hello", session)
+    res.json({ sessionId: session.id, session });
   } catch (error) {
     console.error("Error creating checkout session:", error);
     res.status(500).json({ error: "Failed to create checkout session" });
   }
 }
 module.exports = checkout;
+
+// const result = stripe.redirectToCheckout({
+//   sessionId: session.session.id,
+// });
