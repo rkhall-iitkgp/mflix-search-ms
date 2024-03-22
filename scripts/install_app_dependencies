@@ -1,0 +1,3 @@
+#!/bin/bash
+cd /home/ubuntu/mflix-search-ms
+sudo docker-compose build
