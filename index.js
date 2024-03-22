@@ -17,7 +17,7 @@ app.use(
 app.use(express.json());
 const PORT = process.env.PORT || 5000;
 
-const { authRouter, searchRouter } = require("./routes");
+const { authRouter, searchRouter, adminRouter } = require("./routes");
 
 app.get("/", (req, res) => {
   res.send("Server is up and runnning");
@@ -25,6 +25,7 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRouter);
 app.use("/search", searchRouter);
+app.use("/admin", adminRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running at PORT: ${PORT}`);
