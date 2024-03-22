@@ -1,3 +1,5 @@
 const searchRouter = require("./searchRoutes");
 const authRouter = require("./authRoutes");
-module.exports = { searchRouter, authRouter };
+const chatbotRouter = require("./chatbotRoutes");
+// module.exports = { searchRouter, authRouter };
+module.exports = { searchRouter, authRouter,chatbotRouter };
