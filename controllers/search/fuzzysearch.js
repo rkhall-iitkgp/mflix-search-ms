@@ -2,7 +2,7 @@ const { Movie } = require("../../models");
 
 async function FuzzySearch(req, res) {
     try {
-        const { query } = req.query;
+        let {query, count = 10, page = 1}  = req.query;
 
         if (!query || query.length < 3) {
             return res.status(400).json({
@@ -10,7 +10,18 @@ async function FuzzySearch(req, res) {
                 message: "Error: " + "Query length is too small",
             });
         }
-
+        
+        if (isNaN(parseInt(count)) || parseInt(count) <= 0 || isNaN(parseInt(page)) || parseInt(page) <= 0) {
+            return res.status(400).json({
+                status: false,
+                message: "Error: " + "Invalid count or page parameters",
+            });
+        }
+        
+        count = parseInt(count)
+        page = parseInt(page)
+        const skip = (page - 1) * count
+        
         const agg = [
             {
                 $search: {
@@ -55,29 +66,41 @@ async function FuzzySearch(req, res) {
                 },
             },
             {
-                $limit: 10,
-            },
-            {
                 $project: {
                     _id: 0,
                     title: 1,
                     plot: 1,
                     score: { $meta: "searchScore" },
+
                 },
             },
+            {
+                $facet: {
+                  results: [{ $skip: skip }, { $limit: count }],
+                  totalCount: [
+                    {
+                      $count: 'count'
+                    },
+                  ]
+                }
+              }
         ];
 
         // run pipelines
-        const result = await Movie.aggregate(agg);
-
-        // print results
+        const output = (await Movie.aggregate(agg))[0];
+        let results = output.results
+        const toalCount = output.totalCount[0].count
+        const currCount = page*count
+        
         res.status(200).json({
             status: true,
-            result,
+            results,
+            hasNext: currCount < toalCount
+        ,
         });
-    } catch {
+    } catch (error) {
         console.log("Error: ", error);
-        res.status.json({
+        res.status(500).json({
             status: false,
             message: "Error: " + error.message,
         });

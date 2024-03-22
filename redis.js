@@ -1,5 +1,5 @@
 const redis = require("redis");
 
-const client = redis.createClient({ url: 'redis://redis:6379' });
+const client = redis.createClient({});
 
 module.exports = { client };
