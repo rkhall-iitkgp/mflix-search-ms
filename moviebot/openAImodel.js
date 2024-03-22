@@ -1,8 +1,7 @@
 const { OpenAI } = require("openai");
 const openai = new OpenAI({
   apiKey: process.env.OPEN_AI_API_KEY,
-   }
-)
+});
 const gptModel = process.env.MODEL;
 async function callOpenAI(promptContent, systemContent, previousChat) {
   try {
@@ -34,4 +33,4 @@ async function callOpenAI(promptContent, systemContent, previousChat) {
   }
 }
 
-module.exports =  callOpenAI ;
+module.exports = callOpenAI;

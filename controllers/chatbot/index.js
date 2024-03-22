@@ -1,2 +1,2 @@
-const {modelResponse}=require('./message')
-module.exports = { modelResponse};
+const { modelResponse } = require("./message");
+module.exports = { modelResponse };

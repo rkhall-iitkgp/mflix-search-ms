@@ -35,13 +35,12 @@ const movieSchema = mongoose.Schema({
       numReviews: { type: Number },
       meter: { type: Number },
     },
-    rotten:{ type: Number },
-    fresh:{ type: Number },
+    rotten: { type: Number },
+    fresh: { type: Number },
     dvd: { type: Date },
     lastupdated: { type: Date },
   },
   poster: { type: String },
-
 });
 
 module.exports = movieSchema;
