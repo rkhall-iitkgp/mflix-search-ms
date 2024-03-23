@@ -6,10 +6,14 @@ async function newMovieEmbed(req,res) {
         const content = req.body.message;
         // console.log(req)
         // console.log("query: ",query)
-        const embedding = await getEmbedding(content);
+        const plot_embedding = await getEmbedding(content[0]);
+        const fullplot_embedding = await getEmbedding(content[1]);
         // const documents = await findSimilarDocuments(embedding);
         // console.log(documents);
-        res.json(embedding)
+        res.json({
+            plot_embedding: plot_embedding,
+            fullplot_embedding: fullplot_embedding
+        });
     } catch (err) {
         console.error(err);
          res.json({
