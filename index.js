@@ -6,7 +6,7 @@ const app = express();
 
 const PORT = process.env.PORT || 5000;
 
-const { authRouter, searchRouter , chatbotRouter,adminRouter} = require("./routes");
+const { authRouter, searchRouter , chatbotRouter,adminRouter, movieRouter} = require("./routes");
 
 require("./database")();
 const {connectMlModel}=require("./ml_model");
@@ -47,6 +47,8 @@ app.use("/auth", authRouter);
 app.use("/search", searchRouter);
 app.use("/chatbot", chatbotRouter);
 app.use("/admin", adminRouter);
+app.use("/movies", movieRouter)
+
 app.listen(PORT, () => {
     console.log(`Server running at PORT: ${PORT}`);
 });
