@@ -11,6 +11,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/autocomplete", AutoComplete);
-router.get("/fuzzy", FuzzySearch);
-router.get("/semantic", SemanticSearch);
+router.get("/fuzzysearch",FuzzySearch);
+router.get("/semanticsearch",SemanticSearch);
+// router.post("/newMovie",newMovieEmbed);
 module.exports = router;

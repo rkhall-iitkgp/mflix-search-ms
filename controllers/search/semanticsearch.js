@@ -1,13 +1,6 @@
 const { Movie } = require("../../models");
-const MyFeatureExtractionPipeline = require("../../ml_model/Pipeline");
-async function getEmbedding(query) {
-  const embeddingGenerator = await MyFeatureExtractionPipeline.getInstance();
-  result = await embeddingGenerator(query, {
-    pooling: "mean",
-    normalize: true,
-  });
-  return result;
-}
+const {getEmbedding} =require('../../ml_model')
+
 async function findSimilarDocuments(embedding, count, page, skip) {
   try {
     const queryVector = Array.from(embedding.data);
