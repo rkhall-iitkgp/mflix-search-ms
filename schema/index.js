@@ -3,6 +3,7 @@ const tierSchema = require("./tierSchema");
 const paymentSchema = require("./paymentSchema");
 const movieSchema = require("./movieSchema");
 const adminSchema = require("./adminSchema");
+const accountSchema = require("./accountSchema");
 
 module.exports = {
   userSchema,
@@ -10,4 +11,5 @@ module.exports = {
   paymentSchema,
   movieSchema,
   adminSchema,
+  accountSchema,
 };
