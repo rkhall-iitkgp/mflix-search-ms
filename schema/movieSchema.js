@@ -41,8 +41,8 @@ const movieSchema = mongoose.Schema({
         lastupdated: { type: Date },
     },
     poster: { type: String },
-    plot_embedding: {type: Array},
-    fullplot_embedding: {type: Array},
+    plot_embedding: { type: Array },
+    fullplot_embedding: { type: Array },
 });
 
 module.exports = movieSchema;

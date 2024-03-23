@@ -10,12 +10,12 @@ const userSchema = mongoose.Schema({
     ],
     watchList: [{ type: mongoose.Schema.Types.ObjectId, ref: "movies" }],
     favoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: "movies" }],
-    savedFilters:[
+    savedFilters: [
         {
             name: { type: String },
             filters: { type: Object },
-        }
-    ]
+        },
+    ],
 });
 
 module.exports = userSchema;
