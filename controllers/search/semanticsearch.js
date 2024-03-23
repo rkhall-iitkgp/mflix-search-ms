@@ -74,7 +74,7 @@ async function SemanticSearch(req, res) {
 
     const embedding = await getEmbedding(decodedQuery);
     const documents = await findSimilarDocuments(embedding, count, page, skip);
-    console.log(documents);
+    
     res.status(200).json({ status: true, ...documents });
   } catch (err) {
     console.error(err);
