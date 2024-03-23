@@ -1,3 +1,3 @@
 const populateTiers = require("./populateTiers");
-const mailSender = require('./mailSender');
+const mailSender = require("./mailSender");
 module.exports = { populateTiers, mailSender };

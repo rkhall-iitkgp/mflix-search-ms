@@ -1,5 +1,9 @@
 const express = require("express");
-const { AutoComplete,FuzzySearch,SemanticSearch} = require("../controllers/search");
+const {
+  AutoComplete,
+  FuzzySearch,
+  SemanticSearch,
+} = require("../controllers/search");
 const router = express.Router();
 
 router.get("/", (req, res) => {
