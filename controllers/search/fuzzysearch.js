@@ -72,10 +72,15 @@ async function FuzzySearch(req, res) {
       },
       {
         $project: {
-          _id: 0,
+          _id: 1,
           title: 1,
           plot: 1,
           score: { $meta: "searchScore" },
+          imdb: 1,
+          tomatoes: 1,
+          genre: 1,
+          country: 1,
+          release: 1
         },
       },
       {
