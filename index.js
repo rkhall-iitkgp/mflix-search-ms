@@ -12,7 +12,10 @@ require("./database")();
 const {connectMlModel}=require("./ml_model");
 connectMlModel();
 const cors = require("cors");	
+const morgan = require("morgan")
+
 app.use(express.json());
+app.use(morgan("tiny"))
 
 app.use(
   session({
@@ -21,6 +24,7 @@ app.use(
     saveUninitialized: true,
   }),
 );
+
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:3000",
