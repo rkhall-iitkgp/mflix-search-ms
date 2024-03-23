@@ -4,9 +4,15 @@ const express = require("express");
 const session = require("express-session");
 const app = express();
 
+const PORT = process.env.PORT || 5000;
+
+const { authRouter, searchRouter , chatbotRouter,adminRouter} = require("./routes");
+
 require("./database")();
-require("./ml_model")();
-const cors = require("cors");
+const {connectMlModel}=require("./ml_model");
+connectMlModel();
+const cors = require("cors");	
+app.use(express.json());
 
 app.use(
     session({
@@ -32,10 +38,6 @@ try {
     console.log(e);
 }
 
-app.use(express.json());
-const PORT = process.env.PORT || 5000;
-
-const { authRouter, searchRouter } = require("./routes");
 
 app.get("/", (req, res) => {
     res.send("Server is up and runnning");
@@ -43,7 +45,8 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRouter);
 app.use("/search", searchRouter);
-
+app.use("/chatbot", chatbotRouter);
+app.use("/admin", adminRouter);
 app.listen(PORT, () => {
     console.log(`Server running at PORT: ${PORT}`);
 });
