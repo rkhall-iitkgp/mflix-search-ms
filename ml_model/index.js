@@ -1,4 +1,5 @@
 const MyFeatureExtractionPipeline = require('./Pipeline.js')
+const getEmbedding=require('./embedding.js')
 const connectMlModel = async () => {
     try {
       await MyFeatureExtractionPipeline.getInstance();
@@ -7,4 +8,4 @@ const connectMlModel = async () => {
       console.log(err.message);
     }
   };
-  module.exports = connectMlModel;
+module.exports = {connectMlModel,MyFeatureExtractionPipeline,getEmbedding};
