@@ -59,7 +59,7 @@ async function SemanticSearch(req, res) {
         let { query, count = 10, page = 1 } = req.query;
         const decodedQuery = decodeURIComponent(query);
 
-        if (!decodedQuery || decodedQuery.split(" ").length < 3) {
+        if (!decodedQuery || decodedQuery.split(" ").length < 5) {
             return res.status(400).json({
                 status: false,
                 message: "Error: " + "Query length is too small",
