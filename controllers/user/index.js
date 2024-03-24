@@ -1,12 +1,11 @@
 const createUser = require("./createUser");
 const deleteUser = require("./deleteUser");
-module.exports = { createUser, deleteUser };
 const addToWatchlist =require('./addToWatchlist')
 const saveWatchHistory =require('./saveWatchHistory')
-const getSearch=require('./getSearchHistory')
+const getSearchHistory=require('./getSearchHistory')
 const saveSearch=require('./saveSearchHistory')
 const addToFavourites=require('./addToFavourites')
 const getWatchHistory=require('./getWatchHistory')
 const getFavourites=require('./getFavourites')
 const getWatchlist=require('./getWatchlist')
-module.exports = {addToWatchlist,getSearch,saveWatchHistory,saveSearch,addToFavourites,getWatchHistory,getWatchlist,getFavourites};
+module.exports = {createUser, deleteUser,addToWatchlist,getSearchHistory,saveWatchHistory,saveSearch,addToFavourites,getWatchHistory,getWatchlist,getFavourites};
