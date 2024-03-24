@@ -1,9 +1,10 @@
 const { Movie } = require("../../models");
-
+const {saveSearch} =require("../user")
 async function FuzzySearch(req, res) {
     try {
         let { query, count = 10, page = 1 } = req.query;
-
+        let {userId} =req.body
+        console.log("userId: ",userId)
         if (!query || query.length < 3) {
             return res.status(400).json({
                 status: false,
@@ -100,6 +101,7 @@ async function FuzzySearch(req, res) {
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
         const totalCount = output.totalCount[0]?.count;
+        if(userId!=null) saveSearch(userId,0,query)
         if (!totalCount || isNaN(totalCount)) return res.status(200).json({
             status: true,
             result: [],
