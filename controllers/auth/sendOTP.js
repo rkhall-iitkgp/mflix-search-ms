@@ -14,13 +14,11 @@ const OTPhelper = async (req, res) => {
         });
 
         if (!client.isOpen)
-            return res
-                .status(500)
-                .json({
-                    success: false,
-                    message: "Redis client error",
-                    code: -4,
-                });
+            return res.status(500).json({
+                success: false,
+                message: "Redis client error",
+                code: -4,
+            });
 
         await mailSender(
             email,
@@ -36,13 +34,11 @@ const OTPhelper = async (req, res) => {
             (err, res) => {
                 if (err) {
                     console.log("error in setting redis key", err);
-                    return res
-                        .status(500)
-                        .json({
-                            success: false,
-                            message: "Redis client error",
-                            code: -4,
-                        });
+                    return res.status(500).json({
+                        success: false,
+                        message: "Redis client error",
+                        code: -4,
+                    });
                 }
             },
         );
@@ -74,13 +70,11 @@ const sendOTP = async (req, res) => {
                     .select("+password")
                     .exec();
                 if (!user) {
-                    return res
-                        .status(400)
-                        .json({
-                            success: false,
-                            message: "User not found",
-                            code: -2,
-                        });
+                    return res.status(400).json({
+                        success: false,
+                        message: "User not found",
+                        code: -2,
+                    });
                 }
 
                 const validPassword = await bcrypt.compare(
@@ -88,13 +82,11 @@ const sendOTP = async (req, res) => {
                     user.password,
                 );
                 if (!validPassword) {
-                    return res
-                        .status(400)
-                        .json({
-                            success: false,
-                            message: "Invalid password",
-                            code: -2,
-                        });
+                    return res.status(400).json({
+                        success: false,
+                        message: "Invalid password",
+                        code: -2,
+                    });
                 }
 
                 const success = await OTPhelper(req, res);

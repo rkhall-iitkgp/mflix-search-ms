@@ -10,21 +10,17 @@ const verifyOTP = async (req, res) => {
                 const { otp, email, newPassword } = req.body;
 
                 if (!otp)
-                    return res
-                        .status(400)
-                        .json({
-                            success: false,
-                            message: "Please enter OTP",
-                            code: -1,
-                        });
+                    return res.status(400).json({
+                        success: false,
+                        message: "Please enter OTP",
+                        code: -1,
+                    });
                 if (!client.isOpen)
-                    return res
-                        .status(500)
-                        .json({
-                            success: false,
-                            message: "Redis client error",
-                            code: -4,
-                        });
+                    return res.status(500).json({
+                        success: false,
+                        message: "Redis client error",
+                        code: -4,
+                    });
 
                 const secret = await client.get(req.body.email, (err, res) => {
                     if (err) console.log(err);
@@ -35,13 +31,11 @@ const verifyOTP = async (req, res) => {
                     .exec();
 
                 if (!user)
-                    return res
-                        .status(400)
-                        .json({
-                            success: false,
-                            message: "User not found",
-                            code: -2,
-                        });
+                    return res.status(400).json({
+                        success: false,
+                        message: "User not found",
+                        code: -2,
+                    });
 
                 if (otp === secret) {
                     bcrypt.hash(newPassword, 10, async (err, hash) => {

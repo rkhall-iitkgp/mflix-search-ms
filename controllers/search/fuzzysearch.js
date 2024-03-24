@@ -72,37 +72,17 @@ async function FuzzySearch(req, res) {
             },
             {
                 $project: {
-                    _id: 0,
+                    _id: 1,
                     title: 1,
                     plot: 1,
                     score: { $meta: "searchScore" },
+                    imdb: 1,
+                    tomatoes: 1,
+                    genre: 1,
+                    country: 1,
+                    release: 1,
                 },
-<<<<<<< Updated upstream
-              },
-            ],
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          plot: 1,
-          score: { $meta: "searchScore" },
-          imdb: 1,
-          tomatoes: 1,
-          genre: 1,
-          country: 1,
-          release: 1
-        },
-      },
-      {
-        $facet: {
-          results: [{ $skip: skip }, { $limit: count }],
-          totalCount: [
-=======
             },
->>>>>>> Stashed changes
             {
                 $facet: {
                     results: [{ $skip: skip }, { $limit: count }],
@@ -118,13 +98,18 @@ async function FuzzySearch(req, res) {
         // run pipelines
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
-        const toalCount = output.totalCount[0].count;
+        const totalCount = output.totalCount[0]?.count;
+        if (!totalCount || isNaN(totalCount)) return res.status(200).json({
+            status: true,
+            result: [],
+            message: "Error: " + "No Result Found",
+        });
         const currCount = page * count;
 
         res.status(200).json({
             status: true,
             results,
-            hasNext: currCount < toalCount,
+            hasNext: currCount < totalCount,
         });
     } catch (error) {
         console.log("Error: ", error);

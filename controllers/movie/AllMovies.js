@@ -22,29 +22,21 @@ module.exports = async (req, res) => {
         const totalCount = await Movie.countDocuments({});
         const currCount = page * count;
 
-<<<<<<< Updated upstream
-    const result = await Movie.find({})
-      .find({})
-      .skip(skip)
-      .limit(count)
-      .select({ _id: 1,
-        title: 1,
-        plot: 1,
-        imdb: 1,
-        tomatoes: 1,
-        genre: 1,
-        country: 1,
-        release: 1 })
-      .exec();
-=======
         const result = await Movie.find({})
             .find({})
             .skip(skip)
             .limit(count)
-            //   .sort({ title: -1 })
-            .select({ title: 1, plot: 1 })
+            .select({
+                _id: 1,
+                title: 1,
+                plot: 1,
+                imdb: 1,
+                tomatoes: 1,
+                genre: 1,
+                country: 1,
+                release: 1,
+            })
             .exec();
->>>>>>> Stashed changes
 
         res.status(200).json({
             status: true,

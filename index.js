@@ -6,14 +6,6 @@ const app = express();
 
 const PORT = process.env.PORT || 5000;
 
-const {
-    authRouter,
-    searchRouter,
-    chatbotRouter,
-    adminRouter,
-    movieRouter,
-} = require("./routes");
-
 require("./database")();
 const { connectMlModel } = require("./ml_model");
 connectMlModel();
@@ -47,6 +39,26 @@ try {
     console.log(e);
 }
 
+app.use(express.json());
+
+app.use((req, res, next) => {
+    if (req.originalUrl === "/payment/stripe/webhook") {
+        next();
+    } else {
+        express.json()(req, res, next);
+    }
+});
+
+const {
+    authRouter,
+    searchRouter,
+    chatbotRouter,
+    adminRouter,
+    movieRouter,
+    paymentRouter,
+} = require("./routes");
+const { populateTiers } = require("./utils");
+
 app.get("/", (req, res) => {
     res.send("Server is up and runnning");
 });
@@ -56,6 +68,10 @@ app.use("/search", searchRouter);
 app.use("/chatbot", chatbotRouter);
 app.use("/admin", adminRouter);
 app.use("/movies", movieRouter);
+app.use("/payment", paymentRouter);
+
+process.env.DEPLOYMENT == "local" &&
+    app.get("/tier/populate", (req, res) => res.json(populateTiers()));
 
 app.listen(PORT, () => {
     console.log(`Server running at PORT: ${PORT}`);
