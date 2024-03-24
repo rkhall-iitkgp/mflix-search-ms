@@ -3,6 +3,8 @@ dotenv.config();
 const express = require("express");
 const session = require("express-session");
 const app = express();
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
 
 const PORT = process.env.PORT || 5000;
 
@@ -17,7 +19,7 @@ app.use(morgan("tiny"));
 
 app.use(
     session({
-        secret: process.env.SESSION_SECRET,
+        secret: process.env.REFRESH_SECRET,
         resave: false,
         saveUninitialized: true,
     }),
