@@ -35,7 +35,7 @@ const auth = (req, res, next) => {
     } catch (error) {
         return res.status(401).json({
             success: false,
-            message: "Error in Authentication"
+            message: "Error in Authentication",
         });
     }
 };

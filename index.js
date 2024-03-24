@@ -8,14 +8,21 @@ app.use(cookieParser());
 
 const PORT = process.env.PORT || 5000;
 
+const {
+    authRouter,
+    searchRouter,
+    chatbotRouter,
+    adminRouter,
+    movieRouter,
+    userRouter,
+} = require("./routes");
+
 require("./database")();
 const { connectMlModel } = require("./ml_model");
 connectMlModel();
 const cors = require("cors");
-const morgan = require("morgan");
-
 app.use(express.json());
-app.use(morgan("tiny"));
+// app.use(morgan("tiny"));
 
 app.use(
     session({
@@ -32,34 +39,14 @@ app.use(
 );
 
 // Redis Server connection
-const { client } = require("./redis");
-try {
-    client.connect();
-    client.on("error", (err) => console.log("Redis client error: ", err));
-    client.on("connect", () => console.log("Connected to redis"));
-} catch (e) {
-    console.log(e);
-}
-
-app.use(express.json());
-
-app.use((req, res, next) => {
-    if (req.originalUrl === "/payment/stripe/webhook") {
-        next();
-    } else {
-        express.json()(req, res, next);
-    }
-});
-
-const {
-    authRouter,
-    searchRouter,
-    chatbotRouter,
-    adminRouter,
-    movieRouter,
-    paymentRouter,
-} = require("./routes");
-const { populateTiers } = require("./utils");
+// const { client } = require("./redis");
+// try {
+//     client.connect();
+//     client.on("error", (err) => console.log("Redis client error: ", err));
+//     client.on("connect", () => console.log("Connected to redis"));
+// } catch (e) {
+//     console.log(e);
+// }
 
 app.get("/", (req, res) => {
     res.send("Server is up and runnning");
@@ -70,10 +57,7 @@ app.use("/search", searchRouter);
 app.use("/chatbot", chatbotRouter);
 app.use("/admin", adminRouter);
 app.use("/movies", movieRouter);
-app.use("/payment", paymentRouter);
-
-process.env.DEPLOYMENT == "local" &&
-    app.get("/tier/populate", (req, res) => res.json(populateTiers()));
+app.use("/user", userRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running at PORT: ${PORT}`);
