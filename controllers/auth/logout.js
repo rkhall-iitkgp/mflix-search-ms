@@ -24,12 +24,7 @@ const logout = async (req, res) => {
 
         await ActiveLogin.deleteOne({ sessionId: refreshToken, account: user._id });
 
-        console.log(user.activeLogins);
-        console.log(activeLoginInstance._id);
-
         user.activeLogins = user.activeLogins.filter((login) => login.toString() !== activeLoginInstance._id.toString());
-        console.log(user.activeLogins);
-
         await user.save();
 
         res.clearCookie('refreshToken');
