@@ -6,12 +6,12 @@ const app = express();
 
 const PORT = process.env.PORT || 5000;
 
-const { authRouter, searchRouter , chatbotRouter,adminRouter} = require("./routes");
+const { authRouter, searchRouter, chatbotRouter, adminRouter } = require("./routes");
 
 require("./database")();
-const {connectMlModel}=require("./ml_model");
+const { connectMlModel } = require("./ml_model");
 connectMlModel();
-const cors = require("cors");	
+const cors = require("cors");
 app.use(express.json());
 
 app.use(

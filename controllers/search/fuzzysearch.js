@@ -51,8 +51,38 @@ async function FuzzySearch(req, res) {
                                 },
                             },
                         ],
+                        filter: {
+                            range: {
+                                path: "imdb.rating",
+                                lte: 1,
+                                gte: 1
+                            },
+                            text: [
+                                {
+                                    path: "languages",
+                                    in: ["English"]
+                                },
+                                {
+                                    path: "genres",
+                                    in: ["Action"]
+                                },
+                                {
+                                    path: "countries",
+                                    in: ["India"]
+                                },
+                                {
+                                    path: "type",
+                                    in: ["movie"]
+                                }
+                            ],
+                            range: {
+                                path: "year",
+                                lte: 2000,
+                                gte: 2000
+                            }
+                        }
                     }
-                },
+                }
             },
             {
                 $limit: 10,
@@ -75,7 +105,7 @@ async function FuzzySearch(req, res) {
             status: true,
             result,
         });
-    } catch {
+    } catch (error) {
         console.log("Error: ", error);
         res.status.json({
             status: false,
