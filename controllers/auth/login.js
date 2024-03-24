@@ -108,11 +108,7 @@ const login = async (req, res) => {
 
         const activeLoginInstance = new ActiveLogin(activeLogin);
         await activeLoginInstance.save();
-/*
-    activeLogins: [
-        { type: mongoose.Schema.Types.ObjectId, ref: "activeLogins" },
-    ],
-*/
+        
         user.activeLogins.push(activeLoginInstance._id);
         await Account.findByIdAndUpdate(user._id, user).exec();
 
@@ -132,4 +128,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = login;
+module.exports = {login, refresh};
