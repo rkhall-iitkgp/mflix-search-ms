@@ -3,21 +3,17 @@ const jwt = require("jsonwebtoken");
 //auth
 const auth = (req, res, next) => {
     try {
-        //extract JWT token
-        // flag = 1 if from UpdatePassword else
+        // flag to check if the route is protected
         const { flag } = req.body;
         if (flag) {
-            const token =
-                req.headers.authorization &&
-                req.headers.authorization.split(" ")[1];
+            const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
             if (!token) {
                 return res.status(401).json({
                     success: false,
-                    message: "Token Missing",
+                    message: "Access Denied",
                 });
             }
 
-            //verify the token
             try {
                 const decode = jwt.verify(token, process.env.JWT_SECRET);
                 req.user = decode;
@@ -25,16 +21,16 @@ const auth = (req, res, next) => {
             } catch (error) {
                 return res.status(401).json({
                     success: false,
-                    message: "invalid Token ⚠️",
+                    message: "Invalid Token",
                 });
             }
-
             next();
-        } else next();
+        } 
+        else next();
     } catch (error) {
         return res.status(401).json({
             success: false,
-            message: "Error Occured in Authentication ⚠️",
+            message: "Error in Authentication"
         });
     }
 };

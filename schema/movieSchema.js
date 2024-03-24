@@ -15,7 +15,7 @@ const movieSchema = mongoose.Schema({
     writers: [{ type: String }],
     awards: { wins: Number, nominations: Number, text: String },
     lastUpdated: { type: Date },
-    year: { type: String },
+    year: { type: Number },
     imdb: {
         rating: { type: Number },
         votes: { type: Number },

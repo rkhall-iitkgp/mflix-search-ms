@@ -2,6 +2,51 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { Account } = require("../../models");
 
+const refresh = async(req, res)=>{
+
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        if (!refreshToken) {
+            return res.status(403).json({
+                success: false,
+                message: "No refresh token provided",
+            });
+        }
+        let payload = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+        let user = await Account.findOne({ email: payload.email }).exec();
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+        const newPayload = {
+            email: user.email,
+            id: user._id,
+            role: user.role,
+        };
+        let token = jwt.sign(newPayload, process.env.ACCESS_SECRET, {
+            expiresIn: process.env.ACCESS_EXPIRE_TIME,
+        });
+        user = user.toObject();
+        user.accessToken = token;
+        user.password = undefined;
+        res.status(200).json({
+            success: true,
+            message: "Token refreshed",
+            user,
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Error occured in refresh",
+        });
+    }
+}
+
+
 const login = async (req, res) => {
     try {
         //data fetch
@@ -30,31 +75,28 @@ const login = async (req, res) => {
             role: user.role,
         };
         if (await bcrypt.compare(password, user.password)) {
-            let token = jwt.sign(payload, process.env.JWT_SECRET, {
-                expiresIn: process.env.JWT_EXPIRE_TIME,
+            let token = jwt.sign(payload, process.env.ACCESS_SECRET, {
+                expiresIn: process.env.ACCESS_EXPIRE_TIME,
             });
-            let sessionToken = jwt.sign(payload, process.env.SESSION_SECRET, {
-                expiresIn: process.env.JWT_EXPIRE_TIME,
+            let refreshToken = jwt.sign(payload, process.env.REFRESH_SECRET, {
+                expiresIn: process.env.REFRESH_EXPIRE_TIME,
             });
             user = user.toObject();
-            user.token = token;
-            user.sessionToken = sessionToken;
-            req.session.sessionToken = sessionToken;
+            user.accessToken = token;
             user.password = undefined;
             const options = {
                 expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-                httpOnly: true, //It will make cookie not accessible on clinet side -> good way to keep hackers away
+                httpOnly: true, //cookie cannot be accessed by client side script
             };
-            res.cookie("token", token, "sessionToken", sessionToken, options)
-                .status(200)
-                .json({
-                    success: true,
-                    message: "Login successfull",
-                    user,
-                });
-        } else {
-            //password donot matched
-            return res.status(403).json({
+            res.cookie("refreshToken", refreshToken, options);
+            res.status(200).json({
+                success: true,
+                message: "Login successful",
+                user,
+            });
+        } 
+        else {
+            res.status(401).json({
                 success: false,
                 message: "Invalid credentials",
             });
