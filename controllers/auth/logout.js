@@ -13,7 +13,6 @@ const logout = async (req, res) => {
         }
 
         const refreshToken = req.cookies.refreshToken;
-        console.log(refreshToken);
         const activeLoginInstance = await ActiveLogin.findOne({ sessionId: refreshToken, account: user._id }).exec();
         if (!activeLoginInstance) {
             return res.status(401).json({
