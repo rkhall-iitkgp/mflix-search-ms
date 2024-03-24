@@ -98,13 +98,18 @@ async function FuzzySearch(req, res) {
         // run pipelines
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
-        const toalCount = output.totalCount[0].count;
+        const totalCount = output.totalCount[0]?.count;
+        if (!totalCount || isNaN(totalCount)) return res.status(200).json({
+            status: true,
+            result: [],
+            message: "Error: " + "No Result Found",
+        });
         const currCount = page * count;
 
         res.status(200).json({
             status: true,
             results,
-            hasNext: currCount < toalCount,
+            hasNext: currCount < totalCount,
         });
     } catch (error) {
         console.log("Error: ", error);
