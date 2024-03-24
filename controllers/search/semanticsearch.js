@@ -1,6 +1,6 @@
 const { Movie } = require("../../models");
 const { getEmbedding } = require("../../ml_model");
-
+const {saveSearch} =require("../user")
 async function findSimilarDocuments(embedding, count, page, skip) {
     try {
         const queryVector = Array.from(embedding.data);
@@ -8,7 +8,7 @@ async function findSimilarDocuments(embedding, count, page, skip) {
             {
                 $vectorSearch: {
                     queryVector: queryVector,
-                    path: "plot_embedding",
+                    path: "embedding",
                     numCandidates: 1000,
                     limit: 25,
                     index: "semantic_search",
@@ -40,6 +40,7 @@ async function findSimilarDocuments(embedding, count, page, skip) {
         ];
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
+        
         const totalCount = output.totalCount[0]?.count;
         if (!totalCount || isNaN(totalCount)) return res.status(200).json({
             status: true,
@@ -58,14 +59,16 @@ async function SemanticSearch(req, res) {
     try {
         let { query, count = 10, page = 1 } = req.query;
         const decodedQuery = decodeURIComponent(query);
-
+        let {userId} =req.body
+        // console.log("userid: ",userId)
+        // console.log("embddingg: ",userId)
         if (!decodedQuery || decodedQuery.split(" ").length < 5) {
             return res.status(400).json({
                 status: false,
                 message: "Error: " + "Query length is too small",
             });
         }
-
+       
         if (
             isNaN(parseInt(count)) ||
             parseInt(count) <= 0 ||
@@ -81,15 +84,16 @@ async function SemanticSearch(req, res) {
         count = parseInt(count);
         page = parseInt(page);
         const skip = (page - 1) * count;
-
+       
         const embedding = await getEmbedding(decodedQuery);
+        
         const documents = await findSimilarDocuments(
             embedding,
             count,
             page,
             skip,
         );
-
+        if(userId!=null) saveSearch(userId,1,query)
         res.status(200).json({ status: true, ...documents });
     } catch (err) {
         console.error(err);
