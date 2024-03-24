@@ -22,6 +22,8 @@
         "auto-format": "^1.1.1",
         "axios": "^1.6.8",
         "bcrypt": "^5.1.0",
+        "cookie-parser": "^1.4.6",
+        "cookie-session": "^2.1.0",
         "express-session": "^1.18.0",
         "hotp": "^3.0.0",
         "jsonwebtoken": "^9.0.0",
