@@ -14,6 +14,7 @@ const {
     chatbotRouter,
     adminRouter,
     movieRouter,
+    userRouter,
 } = require("./routes");
 
 require("./database")();
@@ -21,7 +22,7 @@ const { connectMlModel } = require("./ml_model");
 connectMlModel();
 const cors = require("cors");
 app.use(express.json());
-app.use(morgan("tiny"));
+// app.use(morgan("tiny"));
 
 app.use(
     session({
@@ -38,14 +39,14 @@ app.use(
 );
 
 // Redis Server connection
-const { client } = require("./redis");
-try {
-    client.connect();
-    client.on("error", (err) => console.log("Redis client error: ", err));
-    client.on("connect", () => console.log("Connected to redis"));
-} catch (e) {
-    console.log(e);
-}
+// const { client } = require("./redis");
+// try {
+//     client.connect();
+//     client.on("error", (err) => console.log("Redis client error: ", err));
+//     client.on("connect", () => console.log("Connected to redis"));
+// } catch (e) {
+//     console.log(e);
+// }
 
 app.get("/", (req, res) => {
     res.send("Server is up and runnning");
@@ -56,6 +57,7 @@ app.use("/search", searchRouter);
 app.use("/chatbot", chatbotRouter);
 app.use("/admin", adminRouter);
 app.use("/movies", movieRouter);
+app.use("/user", userRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running at PORT: ${PORT}`);

@@ -6,7 +6,10 @@ const auth = (req, res, next) => {
         // flag to check if the route is protected
         const { flag } = req.body;
         if (flag) {
-            const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
+            const token =
+                req.headers.authorization &&
+                req.headers.authorization.split(" ")[1];
+
             if (!token) {
                 return res.status(401).json({
                     success: false,
@@ -24,12 +27,11 @@ const auth = (req, res, next) => {
                 });
             }
             next();
-        } 
-        else next();
+        } else next();
     } catch (error) {
         return res.status(401).json({
             success: false,
-            message: "Error in Authentication"
+            message: "Error in Authentication",
         });
     }
 };

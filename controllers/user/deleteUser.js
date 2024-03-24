@@ -1,44 +1,56 @@
 const { Account, User } = require("../../models");
+
 module.exports = async (req, res) => {
-  const { user, userName } = req.body;
-  try {
-    // Assuming `email` is a property of `user` object
-    const { email } = user;
+    const { userId } = req.body;
 
-    // Find the account with the provided email and populate the userProfiles field
-    const existingAccount = await Account.findOne({ email })
-      .select("+userProfiles")
-      .exec();
+    try {
+        // Fetch the accountId from the authenticated user
+        const accountId = req.user.id;
 
-    // Check if the account exists
-    if (!existingAccount) {
-      return res.status(404).json({
-        success: false,
-        message: "Account not found",
-      });
+        // Find the account with the provided accountId
+        const existingAccount = await Account.findById(accountId)
+            .select("+userProfiles")
+            .exec();
+
+        // Check if the account exists
+        if (!existingAccount) {
+            return res.status(404).json({
+                success: false,
+                message: "Account not found",
+            });
+        }
+
+        // Find the index of the user profile in the userProfiles array
+        const userProfileIndex = existingAccount.userProfiles.findIndex(
+            (profile) => profile.toString() === userId,
+        );
+
+        // If the user profile does not exist, return 404
+        if (userProfileIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                message: "User profile not found",
+            });
+        }
+
+        // Remove the user profile from the userProfiles array
+        existingAccount.userProfiles.splice(userProfileIndex, 1);
+
+        // Save the changes to the Account model
+        await existingAccount.save();
+
+        // Delete the user profile from the User model
+        await User.findByIdAndDelete(userId);
+
+        return res.status(200).json({
+            success: true,
+            message: "User profile deleted successfully",
+        });
+    } catch (error) {
+        console.error("Error: ", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error: " + error.message,
+        });
     }
-
-    // Extract user profiles from the existing account
-    const userProfiles = existingAccount.userProfiles;
-
-    // Check if any user profile with the given name exists
-    const userProfileExists = userProfiles.some(
-      (profile) => profile.name === userName,
-    );
-
-    const userProfileId = userProfileExists._id;
-    // If user profile exists, delete it
-    await User.findByIdAndDelete(userProfileId);
-
-    return res.status(200).json({
-      success: true,
-      message: "User profile deleted successfully",
-    });
-  } catch (error) {
-    console.error("Error: ", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error: " + error.message,
-    });
-  }
 };
