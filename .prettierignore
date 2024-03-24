@@ -1,0 +1,4 @@
+node_modules
+*.env
+movies.json
+pnpm-lock.yaml

@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { getMoviesbypage, createMovie, updateMovie, deleteMovie } = require("../controllers/admin/index");
+const { getMoviesbypage, createMovie, updateMovie, deleteMovie, newMovieEmbed } = require("../controllers/admin/index");
 const { validateMovie } = require("../middlewares/admin/validation");
 
 router.get("/", (req, res) => {
@@ -8,9 +8,9 @@ router.get("/", (req, res) => {
 
 router.get("/movies/:page", getMoviesbypage);
 router.post("/movies", validateMovie, createMovie);
-router.put("/movies/:id", updateMovie);
+router.put("/movies/:id", validateMovie, updateMovie);
 router.delete("/movies/:id", deleteMovie);
-
+router.post("/newMovie",newMovieEmbed);
 
 
 
