@@ -6,13 +6,40 @@ async function findSimilarDocuments(embedding, count, page, skip) {
         const queryVector = Array.from(embedding.data);
         const agg = [
             {
-                $vectorSearch: {
-                    queryVector: queryVector,
-                    path: "embedding",
-                    numCandidates: 1000,
-                    limit: 25,
-                    index: "semantic_search",
-                },
+                "$vectorSearch": {
+                    "queryVector": queryVector,
+                    "path": "embedding",
+                    "numCandidates": 1000,
+                    "limit": 25,
+                    "index": "semantic_search",
+                    "filter": {
+                        '$and': [
+                            {
+                                "year": { $in: [filters.year] }
+                            },
+                            {
+                                'imdb.rating': {
+                                    '$gt': parseFloat(filters.rating.low)
+                                },
+                                'imdb.rating': {
+                                    '$lt': parseFloat(filters.rating.high)
+                                }
+                            },
+                            {
+                                'languages': { $in: [filters.languages] }// Filter by genres
+                            },
+                            {
+                                'countries': { $in: [filters.countries] }
+                            },
+                            {
+                                'genres': { $in: [filters.genres] }
+                            },
+                            {
+                                'type': { $in: [filters.type] }
+                            }
+                        ]
+                    }
+                }
             },
             {
                 $project: {

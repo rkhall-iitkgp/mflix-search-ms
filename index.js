@@ -8,7 +8,6 @@ app.use(cookieParser());
 
 const PORT = process.env.PORT || 5000;
 
-// const {authRouter,searchRouter,chatbotRouter,adminRouter,userRouter} = require("./routes");
 
 require("./database")();
 const { connectMlModel } = require("./ml_model");
