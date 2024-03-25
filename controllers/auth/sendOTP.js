@@ -6,8 +6,8 @@ const sendOTP = async (req, res) => {
 
     const { type } = req.body;
     if(type==="change"){
-        if(!req.headers.authorization) return res.status(401).json({ message: "Error in Authentication", success: false});
-        const token = req.headers.authorization.split(" ")[1];
+        if(!req.cookies.accessToken) return res.status(401).json({ message: "Error in Authentication", success: false});
+        const token = req.cookies.accessToken;
         const decoded = jwt.verify(token, process.env.ACCESS_SECRET);
         req.user = decoded;
         
