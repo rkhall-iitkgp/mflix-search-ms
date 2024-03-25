@@ -40,7 +40,7 @@ const refresh = async(refreshToken) => {
 
 const auth = async(req, res, next) => {
     try {
-        const token = req.cookies.accessToken;
+        let token = req.cookies.accessToken;
         const refreshToken = req.cookies.refreshToken;
 
         if(!refreshToken){
@@ -66,6 +66,8 @@ const auth = async(req, res, next) => {
                 httpOnly: true,
                 secure: process.env.DEPLOYMENT === "local" ? false : true,
             });
+
+            token = refreshResponse.token;
         }
 
 
