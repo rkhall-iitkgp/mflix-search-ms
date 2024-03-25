@@ -34,7 +34,7 @@ const refresh = async(req, res)=>{
         res.status(200).json({
             success: true,
             message: "Token refreshed",
-            user,
+            "account":user,
         });
     }
     catch (error) {
@@ -116,7 +116,7 @@ const login = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Login successful",
-            user,
+            "account":user,
         });
 
     } catch (error) {
