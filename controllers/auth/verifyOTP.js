@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const { Account } = require("../../models");
 const { client } = require("../../redis");
+const jwt = require("jsonwebtoken");
 
 const verifyOTP = async (req, res) => {
 
