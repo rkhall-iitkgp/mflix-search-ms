@@ -11,8 +11,8 @@ const accountSchema = mongoose.Schema({
                 // Regular expression to validate email format
                 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
             },
-            message: props => `${props.value} is not a valid email address!`
-        }
+            message: (props) => `${props.value} is not a valid email address!`,
+        },
     },
     password: { type: String, required: true },
     dob: { type: Date, required: false },
@@ -32,7 +32,9 @@ const accountSchema = mongoose.Schema({
 
     userProfiles: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
 
-    activeLogins: [{ type: mongoose.Schema.Types.ObjectId, ref: "activeLogins" }],
+    activeLogins: [
+        { type: mongoose.Schema.Types.ObjectId, ref: "activeLogins" },
+    ],
 });
 
 module.exports = accountSchema;

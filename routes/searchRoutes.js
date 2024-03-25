@@ -3,15 +3,15 @@ const { AutoComplete, FuzzySearch, SemanticSearch, DeleteFilter, CreateFilter, I
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.send("hello");
+    res.send("hello");
 });
 
 router.get("/autocomplete", AutoComplete);
-router.get("/fuzzysearch", FuzzySearch);
-router.get("/semanticsearch", SemanticSearch);
 router.get("/filter", InitialFilter);
 router.post("/filter", CreateFilter);
 router.post("/filter/getanddelete", DeleteFilter);
 router.get("/filter/getanddelete", GetFilter);
+router.post("/fuzzy", FuzzySearch);
+router.post("/semantic", SemanticSearch);
 // router.post("/newMovie",newMovieEmbed);
 module.exports = router;

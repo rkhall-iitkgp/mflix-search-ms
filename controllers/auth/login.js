@@ -1,6 +1,51 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { Account } = require("../../models");
+const { Account, ActiveLogin } = require("../../models");
+
+const refresh = async(req, res)=>{
+
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        if (!refreshToken) {
+            return res.status(403).json({
+                success: false,
+                message: "No refresh token provided",
+            });
+        }
+        let payload = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+        let user = await Account.findOne({ email: payload.email }).exec();
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+        const newPayload = {
+            email: user.email,
+            id: user._id,
+            role: user.role,
+        };
+        let token = jwt.sign(newPayload, process.env.ACCESS_SECRET, {
+            expiresIn: process.env.ACCESS_EXPIRE_TIME,
+        });
+        user = user.toObject();
+        user.accessToken = token;
+        user.password = undefined;
+        res.status(200).json({
+            success: true,
+            message: "Token refreshed",
+            user,
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Error occured in refresh",
+        });
+    }
+}
+
 
 const login = async (req, res) => {
     try {
@@ -10,7 +55,7 @@ const login = async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
-                message: "Plz fill all the details carefully",
+                message: "Please provide email and password",
             });
         }
 
@@ -20,7 +65,7 @@ const login = async (req, res) => {
         if (!user) {
             return res.status(401).json({
                 success: false,
-                message: "You have to Signup First",
+                message: "User not found",
             });
         }
 
@@ -29,47 +74,58 @@ const login = async (req, res) => {
             id: user._id,
             role: user.role,
         };
-        //verify password and generate a JWt token 🔎
-        if (await bcrypt.compare(password, user.password)) {
-            //if password matched
-            //now lets create a JWT token
-            let token = jwt.sign(payload, process.env.JWT_SECRET, {
-                expiresIn: process.env.JWT_EXPIRE_TIME,
-            });
-            let sessionToken = jwt.sign(payload, process.env.SESSION_SECRET, {
-                expiresIn: process.env.JWT_EXPIRE_TIME,
-            });
-            user = user.toObject();
-            user.token = token;
-            user.sessionToken = sessionToken;
-            req.session.sessionToken = sessionToken;
-            user.password = undefined;
-            const options = {
-                expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-                httpOnly: true, //It will make cookie not accessible on clinet side -> good way to keep hackers away
-            };
-            res
-                .cookie("token", token, "sessionToken", sessionToken, options)
-                .status(200)
-                .json({
-                    success: true,
-                    message: "Logged in Successfully✅",
-                    user,
-                });
-        } else {
-            //password donot matched
-            return res.status(403).json({
+        const isMatch = await bcrypt.compare(password, user.password);
+        if(!isMatch){
+            return res.status(401).json({
                 success: false,
-                message: "Invalid Credentials⚠️",
+                message: "Invalid credentials",
             });
         }
+
+        let token = jwt.sign(payload, process.env.ACCESS_SECRET, {
+            expiresIn: process.env.ACCESS_EXPIRE_TIME,
+        });
+        let refreshToken = jwt.sign(payload, process.env.REFRESH_SECRET, {
+            expiresIn: process.env.REFRESH_EXPIRE_TIME,
+        });
+        user = user.toObject();
+        user.accessToken = token;
+        user.password = undefined;
+
+        const options = {
+            expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            httpOnly: true, //cookie cannot be accessed by client side script
+            secure: process.env.DEPLOYMENT === "local" ? false : true,
+        };
+
+        const activeLogin = {
+            account: user._id,
+            loginTime: new Date(),
+            ipAddress: req.ip,
+            userAgent: req.headers["user-agent"],
+            sessionId: refreshToken,
+        };
+
+        const activeLoginInstance = new ActiveLogin(activeLogin);
+        await activeLoginInstance.save();
+        
+        user.activeLogins.push(activeLoginInstance._id);
+        await Account.findByIdAndUpdate(user._id, user).exec();
+
+        res.cookie("refreshToken", refreshToken, options);
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            user,
+        });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({
             success: false,
-            message: "Login failure⚠️ :" + error,
+            message: "Error occured in login",
         });
     }
 };
 
-module.exports = login;
+module.exports = {login, refresh};

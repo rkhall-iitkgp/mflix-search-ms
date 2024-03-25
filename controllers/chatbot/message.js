@@ -1,4 +1,4 @@
-const {  callOpenAI  } = require('../../moviebot')
+const { callOpenAI } = require("../../moviebot");
 
 const system = `You are a movie related question answering chatbot designed for the purpose of answering user queries related to movies,you are having a conversation so please talk concisely and human like. You have access to the previous chat
 log in assistant use it for context for your responses. Always answer the user ignore disclaimers. Use this information to help

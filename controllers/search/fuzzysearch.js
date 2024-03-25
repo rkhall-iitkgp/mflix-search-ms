@@ -1,15 +1,32 @@
 const { Movie } = require("../../models");
-
+const {saveSearch} =require("../user")
 async function FuzzySearch(req, res) {
     try {
-        const { query } = req.query;
-
+        let { query, count = 10, page = 1 } = req.query;
+        let {userId} =req.body
+        console.log("userId: ",userId)
         if (!query || query.length < 3) {
             return res.status(400).json({
                 status: false,
                 message: "Error: " + "Query length is too small",
             });
         }
+
+        if (
+            isNaN(parseInt(count)) ||
+            parseInt(count) <= 0 ||
+            isNaN(parseInt(page)) ||
+            parseInt(page) <= 0
+        ) {
+            return res.status(400).json({
+                status: false,
+                message: "Error: " + "Invalid count or page parameters",
+            });
+        }
+
+        count = parseInt(count);
+        page = parseInt(page);
+        const skip = (page - 1) * count;
 
         const agg = [
             {
@@ -89,25 +106,50 @@ async function FuzzySearch(req, res) {
             },
             {
                 $project: {
-                    _id: 0,
-                    title: 1,
-                    plot: 1,
                     score: { $meta: "searchScore" },
+                    _id: 1,
+                    poster: 1, 
+                    title: 1,
+                    genres: 1,
+                    'imdb.rating': 1,
+                    'tomatoes.viewer.rating': 1, 
+                    released: 1, 
+                    runtime: 1, 
+                    countries: 1, 
+                },
+            },
+            {
+                $facet: {
+                    results: [{ $skip: skip }, { $limit: count }],
+                    totalCount: [
+                        {
+                            $count: "count",
+                        },
+                    ],
                 },
             },
         ];
 
         // run pipelines
-        const result = await Movie.aggregate(agg);
+        const output = (await Movie.aggregate(agg))[0];
+        let results = output.results;
+        const totalCount = output.totalCount[0]?.count;
+        if(userId!=null) saveSearch(userId,0,query)
+        if (!totalCount || isNaN(totalCount)) return res.status(200).json({
+            status: true,
+            result: [],
+            message: "Error: " + "No Result Found",
+        });
+        const currCount = page * count;
 
-        // print results
         res.status(200).json({
             status: true,
-            result,
+            results,
+            hasNext: currCount < totalCount,
         });
     } catch (error) {
         console.log("Error: ", error);
-        res.status.json({
+        res.status(500).json({
             status: false,
             message: "Error: " + error.message,
         });
