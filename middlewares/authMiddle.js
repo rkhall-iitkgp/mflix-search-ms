@@ -73,7 +73,6 @@ const auth = async(req, res, next) => {
 
         const decoded = jwt.verify(token, process.env.ACCESS_SECRET);
         req.user = decoded;
-        console.log(req.user, refreshToken, token);
         const activeLoginInstance = await ActiveLogin.findOne({ sessionId: refreshToken, account: req.user.id }).exec();
 
         if(!activeLoginInstance){
