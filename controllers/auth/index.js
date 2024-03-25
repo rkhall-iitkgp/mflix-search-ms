@@ -1,4 +1,4 @@
-const {login} = require("./login");
+const {login, verify} = require("./login");
 const sendOTP = require("./sendOTP");
 const verifyOTP = require("./verifyOTP");
 const logout = require("./logout");
@@ -9,6 +9,7 @@ module.exports = {
     verifyOTP,
     logout,
     removeActiveLogin,
-    getActiveLogins
+    getActiveLogins, 
+    verify
 };
 

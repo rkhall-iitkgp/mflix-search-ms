@@ -2,6 +2,61 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { Account, ActiveLogin } = require("../../models");
 
+const verify = async(req, res)=>{
+    try {
+        let token = req.cookies.accessToken;
+        const refreshToken = req.cookies.refreshToken;
+        if(!refreshToken){
+            res.clearCookie('accessToken');
+            return res.status(401).json({
+                success: false,
+                message: "No refresh token provided",
+            });
+        }
+        if(!token){
+            const refreshResponse = await refresh(refreshToken);
+            if(!refreshResponse.success){
+                res.clearCookie('refreshToken');
+                return res.status(401).json({
+                    success: false,
+                    message: refreshResponse.message,
+                });
+            }
+            token = refreshResponse.token;
+            res.cookie("accessToken", token, {
+                expires: new Date(Date.now() + 60 * 60 * 1000),
+                httpOnly: true,
+                secure: process.env.DEPLOYMENT === "local" ? false : true,
+            });
+        }
+        const payload = jwt.verify(token, process.env.ACCESS_SECRET);
+        req.user = payload;
+
+        const account = await Account.findById(req.user.id).exec();
+
+        if(!account){
+            return res.status(401).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Token verified", 
+            account: account,
+        });
+    } catch (error) {
+        console.error(error);
+        res.clearCookie('refreshToken');
+        res.clearCookie('accessToken');
+        return res.status(401).json({
+            success: false,
+            message: "Invalid token",
+        });
+    }
+}
+
 const login = async (req, res) => {
     try {
         //data fetch
@@ -87,4 +142,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = {login};
+module.exports = {login, verify};

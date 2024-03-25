@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { auth } = require("../middlewares");
 
-const { sendOTP, login, verifyOTP, logout, getActiveLogins, removeActiveLogin } = require("../controllers/auth");
+const { sendOTP, login, verifyOTP, logout, getActiveLogins, removeActiveLogin, verify } = require("../controllers/auth");
 
 // login into application
 router.post("/login", login);
@@ -13,5 +13,6 @@ router.post("/verifyOTP", verifyOTP);
 router.post("/logout", auth, logout);
 router.post("/removeActiveLogin", auth, removeActiveLogin);
 router.get("/getActiveLogins", auth, getActiveLogins);
+router.get("/verify", verify);
 
 module.exports = router;
