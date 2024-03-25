@@ -5,7 +5,7 @@ const removeActiveLogin = async (req, res) => {
 
     try {
         const { loginId } = req.body;
-        const activeLogin = await ActiveLogin.findByIdAndDelete(loginId).exec();
+        const activeLogin = await ActiveLogin.findById(loginId).exec();
 
         if (!activeLogin) {
             return res.status(401).json({
@@ -13,6 +13,8 @@ const removeActiveLogin = async (req, res) => {
                 message: "Active login session not found",
             });
         }
+
+        await ActiveLogin.deleteOne({sessionId: activeLogin.sessionId, account: req.user.id}).exec();
 
         const account = await Account.find({email: req.user.email}).exec();
         account.activeLogins = account.activeLogins.filter((login) => login.toString() !== loginId.toString());
