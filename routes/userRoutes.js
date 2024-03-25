@@ -2,10 +2,14 @@ const express = require("express");
 const router = express.Router();
 const { createUser, deleteUser } = require("../controllers/user");
 const { auth } = require("../middlewares");
-const {deleteFromFavourites,deleteSearchHistory,deleteFromWatchlist,addToWatchlist,saveSearch,saveWatchHistory,addToFavourites ,getWatchHistory,getFavourites,getWatchlist,getSearchHistory} = require("../controllers/user");
+const {InitialFilter, CreateFilter, DeleteFilter, GetFilter,deleteFromFavourites,deleteSearchHistory,deleteFromWatchlist,addToWatchlist,saveSearch,saveWatchHistory,addToFavourites ,getWatchHistory,getFavourites,getWatchlist,getSearchHistory} = require("../controllers/user");
 router.get("/", (req, res) => {
   res.send("hello");
 });
+router.get("/filter", InitialFilter);
+router.post("/createfilter", CreateFilter);
+router.delete("/deletefilter", DeleteFilter);
+router.get("/getfilter", GetFilter);
 router.post("/create", auth, createUser);
 router.delete("/delete", auth, deleteUser);
 router.post("/addToWatchlist",addToWatchlist);

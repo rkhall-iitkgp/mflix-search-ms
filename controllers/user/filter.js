@@ -62,10 +62,8 @@ async function InitialFilter(req, res) {
 
 async function CreateFilter(req, res) {
     try {
-        const { userId } = req.body;
-        const { name, filters } = req.query;
+        const { userId ,name, filters } = req.body;
         const user = await User.findById(userId);
-
         if (!user) {
             return res.status(404).json({
                 status: false,
@@ -145,11 +143,20 @@ async function GetFilter(req, res) {
                 message: "User not found",
             });
         }
+        const filter = user.savedFilters.find(filter => filter.name === name);
 
+        if (!filter) {
+            return res.status(404).json({
+                status: false,
+                message: "Filter not found",
+            });
+        }
+    
+        // Optionally, you can send back the specific filter instead of the entire user object
         res.status(200).json({
             status: true,
-            message: "Filter deleted successfully",
-            user: user.savedFilters // Optionally, you can send back the updated user object
+            message: "Filter retrieved",
+            filter: filter,
         });
     } catch (error) {
         console.log("Error: ", error);
