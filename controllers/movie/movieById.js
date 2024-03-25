@@ -4,7 +4,7 @@ module.exports = async (req, res) => {
     try {
         const { id } = req.params;
         const result = await Movie.findById(id).select(
-            "-plot_embedding -fullplot_embedding",
+            "-plot_embedding -fullplot_embedding -embedding",
         );
         res.status(200).json({
             status: true,
