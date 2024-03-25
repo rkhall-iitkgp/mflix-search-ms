@@ -1,148 +1,82 @@
 const bcrypt = require("bcrypt");
-const { Account } = require("../../models");
+const { Account , User} = require("../../models");
 const { client } = require("../../redis");
+const jwt = require("jsonwebtoken");
 
 const verifyOTP = async (req, res) => {
-    try {
-        const { flag } = req.body;
-        if (flag) {
-            try {
-                const { otp, email, newPassword } = req.body;
 
-                if (!otp)
-                    return res.status(400).json({
-                        success: false,
-                        message: "Please enter OTP",
-                        code: -1,
-                    });
-                if (!client.isOpen)
-                    return res.status(500).json({
-                        success: false,
-                        message: "Redis client error",
-                        code: -4,
-                    });
+    const {type} = req.body;
 
-                const secret = await client.get(req.body.email, (err, res) => {
-                    if (err) console.log(err);
-                });
-
-                const user = await Account.findOne({ email })
-                    .select("+password")
-                    .exec();
-
-                if (!user)
-                    return res.status(400).json({
-                        success: false,
-                        message: "User not found",
-                        code: -2,
-                    });
-
-                if (otp === secret) {
-                    bcrypt.hash(newPassword, 10, async (err, hash) => {
-                        if (err) {
-                            return res.status(500).json({
-                                success: false,
-                                message: "Error in hashing password",
-                                code: -4,
-                            });
-                        }
-                        user.password = hash;
-                        await user.save();
-                        return res.status(200).json({
-                            success: true,
-                            message: "Password updated successfully",
-                            code: 0,
-                        });
-                    });
-                } else {
-                    res.status(400).json({
-                        success: false,
-                        message: "Invalid OTP",
-                        code: -2,
-                    });
-                }
-            } catch (e) {
-                res.status(400).json({
-                    success: false,
-                    message: "Internal Server Error",
-                    code: -5,
-                });
-            }
-        } else {
-            try {
-                const { name, email, password, phone, dob, otp } = req.body;
-
-                // Check if All Details are there or not
-                if (!name || !email || !password || !otp) {
-                    return res.status(403).send({
-                        success: false,
-                        message: "Please fill all the details",
-                    });
-                }
-                //check if use already exists?
-                const existingUser = await Account.findOne({ email });
-                if (existingUser) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "User already exists",
-                    });
-                }
-
-                // Find the most recent OTP for the email
-                const response = await client.get(
-                    req.body.email,
-                    (err, res) => {
-                        if (err) console.log(err);
-                    },
-                );
-
-                if (response.length === 0) {
-                    // OTP not found for the email
-                    return res.status(400).json({
-                        success: false,
-                        message: "OTP not found",
-                    });
-                } else if (otp !== response) {
-                    // Invalid OTP
-                    return res.status(400).json({
-                        success: false,
-                        message: "Invalid OTP",
-                    });
-                }
-
-                //secure password
-                let hashedPassword;
-                try {
-                    hashedPassword = await bcrypt.hash(password, 10);
-                } catch (error) {
-                    return res.status(500).json({
-                        success: false,
-                        message: "Error in hashing password",
-                    });
-                }
-
-                const user = await Account.create({
-                    name,
-                    email,
-                    phone,
-                    dob,
-                    password: hashedPassword,
-                });
-
-                return res.status(200).json({
-                    success: true,
-                    message: "User created successfully",
-                    user,
-                });
-            } catch (error) {
-                return res.status(500).json({
-                    success: false,
-                    message: "User registration failed",
-                });
-            }
-        }
-    } catch (error) {
-        return res.status(500).json({ success: false, message: error.message });
+    if(type==="change"){
+        if(!req.cookies.accessToken) return res.status(401).json({ message: "Error in Authentication", success: false});
+        const token = req.cookies.accessToken;
+        const decoded = jwt.verify(token, process.env.ACCESS_SECRET);
+        req.user = decoded;
     }
+
+    const {email, otp, newPassword} = req.body;
+    if(!otp || !email || !newPassword) return res.status(400).json({ message: "Invalid input", success: false});
+
+    const user = await Account.findOne({ email })
+
+    if(type==="register"){
+        if(user) return res.status(400).json({ message: "User already exists", success: false});
+    }
+
+    if(type==="forgot"){
+        if(!user) return res.status(400).json({ message: "User does not exist", success: false});
+    }
+
+    if(!client.isOpen) return res.status(500).json({ message: "Internal Server Error", success: false});
+    
+    const secret = await client.get(email, async (err, reply) => {
+        if (err) {
+            console.log("error in getting redis key", err);
+            return false;
+        }
+        return reply;
+    })
+
+    if(!secret) return res.status(400).json({ message: "OTP expired", success: false});
+    if(secret !== otp) return res.status(400).json({ message: "Invalid OTP", success: false});
+
+    if(type==="register"){
+        const { name, phone, dob } = req.body;
+        const hash = await bcrypt.hash(newPassword, 10);
+        const user = new Account({ name, email, password: hash, phone, dob });
+
+        const payload = {
+            email: user.email,
+            id: user._id,
+            role: user.role,
+        };
+
+        const token = jwt.sign(payload, process.env.ACCESS_SECRET, {
+            expiresIn: process.env.ACCESS_EXPIRE_TIME,
+        });
+
+        res.cookie("accessToken", token, {
+            httpOnly: true,
+            secure: process.env.DEPLOYMENT === "local" ? false : true,
+        });
+
+        const userProfile = new User({ name: user.name });
+        await userProfile.save();
+
+        user.userProfiles.push(userProfile._id);
+        await user.save();
+
+        user.password = undefined;
+
+        return res.status(200).json({ message: "User registered successfully", success: true, account: user });
+    }
+
+    if(type==="forgot" || type==="change"){
+        const hash = await bcrypt.hash(newPassword, 10);
+        await Account.findOneAndUpdate({ email }, { password: hash });
+    }
+
+    return res.status(200).json({ message: "OTP verified successfully", success: true });
+    
 };
 module.exports = verifyOTP;

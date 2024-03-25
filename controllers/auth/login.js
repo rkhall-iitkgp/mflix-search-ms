@@ -2,51 +2,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { Account, ActiveLogin } = require("../../models");
 
-const refresh = async(req, res)=>{
-
-    try {
-        const refreshToken = req.cookies.refreshToken;
-        if (!refreshToken) {
-            return res.status(403).json({
-                success: false,
-                message: "No refresh token provided",
-            });
-        }
-        let payload = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
-        let user = await Account.findOne({ email: payload.email }).exec();
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "User not found",
-            });
-        }
-        const newPayload = {
-            email: user.email,
-            id: user._id,
-            role: user.role,
-        };
-        let token = jwt.sign(newPayload, process.env.ACCESS_SECRET, {
-            expiresIn: process.env.ACCESS_EXPIRE_TIME,
-        });
-        user = user.toObject();
-        user.accessToken = token;
-        user.password = undefined;
-        res.status(200).json({
-            success: true,
-            message: "Token refreshed",
-            user,
-        });
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({
-            success: false,
-            message: "Error occured in refresh",
-        });
-    }
-}
-
-
 const login = async (req, res) => {
     try {
         //data fetch
@@ -89,14 +44,7 @@ const login = async (req, res) => {
             expiresIn: process.env.REFRESH_EXPIRE_TIME,
         });
         user = user.toObject();
-        user.accessToken = token;
         user.password = undefined;
-
-        const options = {
-            expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-            httpOnly: true, //cookie cannot be accessed by client side script
-            secure: process.env.DEPLOYMENT === "local" ? false : true,
-        };
 
         const activeLogin = {
             account: user._id,
@@ -108,19 +56,26 @@ const login = async (req, res) => {
 
         const activeLoginInstance = new ActiveLogin(activeLogin);
         await activeLoginInstance.save();
-/*
-    activeLogins: [
-        { type: mongoose.Schema.Types.ObjectId, ref: "activeLogins" },
-    ],
-*/
+        
         user.activeLogins.push(activeLoginInstance._id);
         await Account.findByIdAndUpdate(user._id, user).exec();
 
-        res.cookie("refreshToken", refreshToken, options);
+        res.cookie("refreshToken", refreshToken, {
+            expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            httpOnly: true,
+            secure: process.env.DEPLOYMENT === "local" ? false : true,
+        });
+
+        res.cookie("accessToken", token, {
+            expires: new Date(Date.now() + 60 * 60 * 1000),
+            httpOnly: true,
+            secure: process.env.DEPLOYMENT === "local" ? false : true,
+        
+        });
         res.status(200).json({
             success: true,
             message: "Login successful",
-            user,
+            "account":user,
         });
 
     } catch (error) {
@@ -132,4 +87,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = login;
+module.exports = {login};
