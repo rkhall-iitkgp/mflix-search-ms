@@ -1,5 +1,4 @@
-const {ActiveLogin} = require('../../models');
-const {Account} = require('../../models');
+const {ActiveLogin, Account} = require('../../models');
 
 const removeActiveLogin = async (req, res) => {
 
@@ -16,7 +15,7 @@ const removeActiveLogin = async (req, res) => {
 
         await ActiveLogin.deleteOne({sessionId: activeLogin.sessionId, account: req.user.id}).exec();
 
-        const account = await Account.find({email: req.user.email}).exec();
+        const account = await Account.findOne({email: req.user.email}).exec();
         account.activeLogins = account.activeLogins.filter((login) => login.toString() !== loginId.toString());
         await account.save();
 
