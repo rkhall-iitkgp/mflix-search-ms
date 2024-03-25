@@ -40,7 +40,7 @@ const refresh = async(refreshToken) => {
 
 const auth = async(req, res, next) => {
     try {
-        const token = req.cookies.accessToken;
+        let token = req.cookies.accessToken;
         const refreshToken = req.cookies.refreshToken;
 
         if(!refreshToken){
@@ -66,13 +66,15 @@ const auth = async(req, res, next) => {
                 httpOnly: true,
                 secure: process.env.DEPLOYMENT === "local" ? false : true,
             });
+
+            token = refreshResponse.token;
         }
 
 
         const decoded = jwt.verify(token, process.env.ACCESS_SECRET);
         req.user = decoded;
         const activeLoginInstance = await ActiveLogin.findOne({ sessionId: refreshToken, account: req.user.id }).exec();
-
+        
         if(!activeLoginInstance){
             res.clearCookie('accessToken');
             res.clearCookie('refreshToken');
