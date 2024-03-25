@@ -1,5 +1,6 @@
 const { Account } = require("../../models");
 const genAndSendOTP = require('./otp')
+const jwt = require("jsonwebtoken");
 
 const sendOTP = async (req, res) => {
 
