@@ -63,7 +63,7 @@ const verifyOTP = async (req, res) => {
         const userProfile = new User({ name: user.name });
         await userProfile.save();
 
-        user.userProfiles.push(userProfile);
+        user.userProfiles.push(userProfile._id);
         await user.save();
 
         user.password = undefined;
