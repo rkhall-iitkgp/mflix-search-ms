@@ -6,21 +6,21 @@ const {InitialFilter, CreateFilter, DeleteFilter, GetFilter,deleteFromFavourites
 router.get("/", (req, res) => {
   res.send("hello");
 });
-router.get("/filter", InitialFilter);
-router.post("/createfilter", CreateFilter);
-router.delete("/deletefilter", DeleteFilter);
-router.get("/getfilter", GetFilter);
+// router.get("/filter", InitialFilter);
+router.get("/filter", GetFilter);
+router.post("/filter", CreateFilter);
+router.delete("/filter", DeleteFilter);
 router.post("/create", auth, createUser);
 router.delete("/delete", auth, deleteUser);
-router.post("/addToWatchlist",addToWatchlist);
-router.post("/saveSearchHistory",saveSearch);
-router.post("/saveWatchHistory",saveWatchHistory);
-router.post("/addToFavourites",addToFavourites);
-router.get("/getWatchHistory",getWatchHistory);
-router.get("/getFavourites",getFavourites);
-router.get("/getWatchlist",getWatchlist);
-router.get("/getSearch",getSearchHistory);
-router.delete("/deleteFavourites",deleteFromFavourites)
-router.delete("/deleteSearch",deleteSearchHistory)
-router.delete("/deleteWatchlist",deleteFromWatchlist)
+router.post("/watchlist",addToWatchlist);
+router.delete("/watchlist",deleteFromWatchlist);
+router.get("/watchlist",getWatchlist);
+router.post("/search",saveSearch);
+router.get("/search",getSearchHistory);
+router.delete("/search",deleteSearchHistory);
+router.post("/favourites",addToFavourites);
+router.get("/favourites",getFavourites);
+router.delete("/favourites",deleteFromFavourites);
+router.post("/history",saveWatchHistory);
+router.get("/history",getWatchHistory);
 module.exports = router;

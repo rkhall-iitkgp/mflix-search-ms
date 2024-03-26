@@ -4,7 +4,7 @@ const { saveSearch } = require("../user")
 async function findSimilarDocuments(embedding, count, page, skip, filters) {
     try {
         const queryVector = Array.from(embedding.data);
-        console.log("filters: ",filters)
+
         let agg = [
             {
                 "$vectorSearch": {
@@ -40,42 +40,38 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
                 },
             },
         ];
-        console.log("filters year: ",filters.year)
         let filter = {};
 
-        if (filters && filters.year && filters.year.length > 0) {
-            filter['year'] = { $in: filters.year };
+        if (filters.year.length > 0) {
+            filter['year'] = { $gte: parseInt(filters.year.start), $lte: parseInt(filters.year.end) };
         }
 
-        if (filters && filters.rating && filters.rating.low && filters.rating.high) {
+        if (filters.rating.low && filters.rating.high) {
             filter['imdb.rating'] = {
                 $gt: parseFloat(filters.rating.low),
                 $lt: parseFloat(filters.rating.high),
             };
         }
 
-        if (filters &&  filters.languages && filters.languages.length > 0) {
+        if (filters.languages.length > 0) {
             filter['languages'] = { $in: filters.languages };
         }
 
-        if (filters && filters.countries && filters.countries.length > 0) {
+        if (filters.countries.length > 0) {
             filter['countries'] = { $in: filters.countries };
         }
 
-        if (filters && filters.genres && filters.genres.length > 0) {
+        if (filters.genres.length > 0) {
             filter['genres'] = { $in: filters.genres };
         }
 
-        if (filters && filters.type && filters.type.length > 0) {
+        if (filters.type.length > 0) {
             filter['type'] = { $in: filters.type };
         }
 
-        // Check if the filter is not empty before adding it to the pipeline
         if (Object.keys(filter).length > 0) {
             agg[0]['$vectorSearch']['filter'] = { $and: Object.entries(filter).map(([key, value]) => ({ [key]: value })) };
         }
-
-        console.log(agg);
 
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
@@ -92,11 +88,24 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
 
 async function SemanticSearch(req, res) {
     try {
-        let { query, count = 10, page = 1 } = req.query;
+        let { query, count = 10, page = 1, start, end, low, high, language, country, genre, type } = req.query;
         const decodedQuery = decodeURIComponent(query);
-        let { userId, filters } = req.body
-        // console.log("userid: ",userId)
-        // console.log("embddingg: ",userId)
+        let { userId } = req.body;
+        let filters = {
+            year: {
+                start: start || 0,
+                end: end || 2024,
+            }, 
+            languages: language || '',
+            countries: country || '',
+            genres: genre || '',
+            type: type || '', 
+            rating: {
+                low: low || 0,
+                high: high || 10,
+            }
+        }
+
         if (!decodedQuery || decodedQuery.split(" ").length < 5) {
             return res.status(400).json({
                 status: false,
