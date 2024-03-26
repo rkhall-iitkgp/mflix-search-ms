@@ -22,7 +22,7 @@ const accountSchema = mongoose.Schema({
     subscriptionTier: {
         tier: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "tier",
+            ref: "tiers",
             required: false,
         },
         bill: { type: mongoose.Schema.Types.ObjectId, ref: "payments" },
