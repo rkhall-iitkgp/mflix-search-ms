@@ -32,7 +32,13 @@ const verify = async(req, res)=>{
         const payload = jwt.verify(token, process.env.ACCESS_SECRET);
         req.user = payload;
 
-        const account = await Account.findById(req.user.id).exec();
+        const account = await Account.findById(req.user.id).populate({
+            path: "subscriptionTier", 
+            populate: { path: "tier", model: "tiers" },
+        }).populate({
+            path: "subscriptionTier", 
+            populate: { path: "bill", model: "payments" },
+        }).exec();
 
         if(!account){
             return res.status(401).json({
