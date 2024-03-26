@@ -11,5 +11,5 @@ const getWatchlist=require('./getWatchlist')
 const deleteSearchHistory=require('./deleteSearchHistory')
 const deleteFromWatchlist=require('./deleteFromWatchlist')
 const deleteFromFavourites=require('./deleteFromFavourites')
-const { InitialFilter, CreateFilter, DeleteFilter, GetFilter } = require('./filter')
-module.exports = {InitialFilter, CreateFilter, DeleteFilter, GetFilter,deleteFromFavourites,deleteFromWatchlist,deleteSearchHistory,createUser, deleteUser,addToWatchlist,getSearchHistory,saveWatchHistory,saveSearch,addToFavourites,getWatchHistory,getWatchlist,getFavourites};
+const { CreateFilter, DeleteFilter, GetFilter } = require('./filter')
+module.exports = { CreateFilter, DeleteFilter, GetFilter,deleteFromFavourites,deleteFromWatchlist,deleteSearchHistory,createUser, deleteUser,addToWatchlist,getSearchHistory,saveWatchHistory,saveSearch,addToFavourites,getWatchHistory,getWatchlist,getFavourites};

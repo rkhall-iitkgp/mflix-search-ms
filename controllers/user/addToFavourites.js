@@ -2,7 +2,7 @@ const { User } = require("../../models");
 async function addToFavourites(req,res) {
   try {
     const {movie,userId}=req.body
-    const movie_id=movie._id.$oid;
+    const movie_id=movie;
     const doc= await User.findOne({_id:userId});
     const result=doc.favoriteMovies
     result.push({"movie":movie_id})
