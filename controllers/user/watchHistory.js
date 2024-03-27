@@ -1,7 +1,7 @@
 const { User } = require("../../models");
 async function getWatchHistory(req, res) {
     try {
-        const userId = req.query.userId;
+        const userId = req.params.userId;
         const result = await User.findOne({ _id: userId })
             .populate(
                 "moviesWatched.movie",
@@ -17,7 +17,8 @@ async function getWatchHistory(req, res) {
 
 async function saveWatchHistory(req, res) {
     try {
-        const { movie, watchdurn, userId } = req.body;
+        const { movie, watchdurn } = req.body;
+        const {userId} = req.params
         const doc = await User.findOne({ _id: userId });
         const movie_id = movie._id.$oid;
         const result = doc.moviesWatched;
