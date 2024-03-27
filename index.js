@@ -5,6 +5,7 @@ const session = require("express-session");
 const app = express();
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
+const morgan = require("morgan");
 
 const PORT = process.env.PORT || 5000;
 
@@ -14,7 +15,7 @@ const { connectMlModel } = require("./ml_model");
 connectMlModel();
 const cors = require("cors");
 app.use(express.json());
-// app.use(morgan("tiny"));
+app.use(morgan("tiny"));
 
 app.use(
     session({
