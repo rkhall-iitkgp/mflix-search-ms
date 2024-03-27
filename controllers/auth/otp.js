@@ -3,8 +3,7 @@ const hotp = require("hotp");
 const { client } = require("../../redis");
 const { mailSender } = require("../../utils");
 
-const genAndSendOTP = async(email) => {
-
+const genAndSendOTP = async (email) => {
     const otp = hotp.totp(email, {
         digits: process.env.OTP_DIGITS,
         timeStep: 300,
@@ -22,7 +21,7 @@ const genAndSendOTP = async(email) => {
     await client.set(
         email,
         otp,
-        {EX: process.env.OTP_EXPIRE_TIME},
+        { EX: process.env.OTP_EXPIRE_TIME },
         (err, res) => {
             if (err) {
                 console.log("error in setting redis key", err);
@@ -31,7 +30,7 @@ const genAndSendOTP = async(email) => {
         },
     );
 
-    return true
+    return true;
 };
 
 module.exports = genAndSendOTP;

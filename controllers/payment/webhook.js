@@ -29,7 +29,7 @@ async function webhook(req, res) {
                             transactionId: session.payment_intent,
                             paymentType:
                                 session.payment_method_types[0].toUpperCase(),
-                             expiredOn
+                            expiredOn,
                         },
                     },
                     { new: true },

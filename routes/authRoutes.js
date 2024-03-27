@@ -2,7 +2,15 @@ const express = require("express");
 const router = express.Router();
 const { auth } = require("../middlewares");
 
-const { sendOTP, login, verifyOTP, logout, getActiveLogins, removeActiveLogin, verify } = require("../controllers/auth");
+const {
+    sendOTP,
+    login,
+    verifyOTP,
+    logout,
+    getActiveLogins,
+    removeActiveLogin,
+    verify,
+} = require("../controllers/auth");
 
 // login into application
 router.post("/login", login);

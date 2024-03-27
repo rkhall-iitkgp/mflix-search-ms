@@ -5,7 +5,7 @@ const chatbotRouter = require("./chatbotRoutes");
 const adminRouter = require("./adminRoutes");
 // module.exports = { searchRouter, authRouter };
 const movieRouter = require("./movieRoutes");
-const userRouter =require("./userRoutes")
+const userRouter = require("./userRoutes");
 module.exports = {
     searchRouter,
     authRouter,
@@ -14,5 +14,5 @@ module.exports = {
     movieRouter,
     userRouter,
     paymentRouter,
-    userRouter
+    userRouter,
 };

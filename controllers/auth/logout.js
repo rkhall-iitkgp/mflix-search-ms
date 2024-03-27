@@ -13,7 +13,10 @@ const logout = async (req, res) => {
         }
 
         const refreshToken = req.cookies.refreshToken;
-        const activeLoginInstance = await ActiveLogin.findOne({ sessionId: refreshToken, account: user._id }).exec();
+        const activeLoginInstance = await ActiveLogin.findOne({
+            sessionId: refreshToken,
+            account: user._id,
+        }).exec();
         if (!activeLoginInstance) {
             return res.status(401).json({
                 success: false,
@@ -21,12 +24,17 @@ const logout = async (req, res) => {
             });
         }
 
-        await ActiveLogin.deleteOne({ sessionId: refreshToken, account: user._id });
+        await ActiveLogin.deleteOne({
+            sessionId: refreshToken,
+            account: user._id,
+        });
 
-        user.activeLogins = user.activeLogins.filter((login) => login.toString() !== activeLoginInstance._id.toString());
+        user.activeLogins = user.activeLogins.filter(
+            (login) => login.toString() !== activeLoginInstance._id.toString(),
+        );
         await user.save();
 
-        res.clearCookie('refreshToken');
+        res.clearCookie("refreshToken");
         return res.status(200).json({
             success: true,
             message: "Logged out successfully",

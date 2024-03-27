@@ -30,7 +30,7 @@ async function checkout(req, res) {
 
         //check if already a stripe customer if not a stripe customer then create
 
-        const  existingPayment = await Payment.findOne({ accountId: user.id });
+        const existingPayment = await Payment.findOne({ accountId: user.id });
         const tier = await Tier.findById(product.tierId);
         let customer;
         if (!existingPayment) {
@@ -45,7 +45,6 @@ async function checkout(req, res) {
             });
         } else {
             if (existingPayment.expiredOn < currentDate) {
-
                 return res.json({
                     error: "you already have a subscription plan",
                 });
@@ -85,7 +84,7 @@ async function checkout(req, res) {
             cancel_url: redirectURL || process.env.FRONTEND_URL, // Redirect to frontend cancel page
             metadata: {
                 userId: user.id,
-                expiredOn: renewalDate, 
+                expiredOn: renewalDate,
             },
         });
         res.json({ sessionId: session.id, session });

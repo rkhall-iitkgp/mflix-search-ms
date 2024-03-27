@@ -1,19 +1,19 @@
 const { Movie } = require("../../models");
 const { getEmbedding } = require("../../ml_model");
-const { saveSearch } = require("../user")
+const { saveSearch } = require("../user");
 async function findSimilarDocuments(embedding, count, page, skip, filters) {
     try {
         const queryVector = Array.from(embedding.data);
 
         let agg = [
             {
-                "$vectorSearch": {
-                    "queryVector": queryVector,
-                    "path": "embedding",
-                    "numCandidates": 1000,
-                    "limit": 25,
-                    "index": "semantic_search"
-                }
+                $vectorSearch: {
+                    queryVector: queryVector,
+                    path: "embedding",
+                    numCandidates: 1000,
+                    limit: 25,
+                    index: "semantic_search",
+                },
             },
             {
                 $project: {
@@ -22,8 +22,8 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
                     poster: 1,
                     title: 1,
                     genres: 1,
-                    'imdb.rating': 1,
-                    'tomatoes.viewer.rating': 1,
+                    "imdb.rating": 1,
+                    "tomatoes.viewer.rating": 1,
                     released: 1,
                     runtime: 1,
                     countries: 1,
@@ -43,41 +43,48 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
         let filter = {};
 
         if (filters.year.length > 0) {
-            filter['year'] = { $gte: parseInt(filters.year.start), $lte: parseInt(filters.year.end) };
+            filter["year"] = {
+                $gte: parseInt(filters.year.start),
+                $lte: parseInt(filters.year.end),
+            };
         }
 
         if (filters.rating.low && filters.rating.high) {
-            filter['imdb.rating'] = {
+            filter["imdb.rating"] = {
                 $gt: parseFloat(filters.rating.low),
                 $lt: parseFloat(filters.rating.high),
             };
         }
 
         if (filters.languages.length > 0) {
-            filter['languages'] = { $in: filters.languages };
+            filter["languages"] = { $in: filters.languages };
         }
 
         if (filters.countries.length > 0) {
-            filter['countries'] = { $in: filters.countries };
+            filter["countries"] = { $in: filters.countries };
         }
 
         if (filters.genres.length > 0) {
-            filter['genres'] = { $in: filters.genres };
+            filter["genres"] = { $in: filters.genres };
         }
 
         if (filters.type.length > 0) {
-            filter['type'] = { $in: filters.type };
+            filter["type"] = { $in: filters.type };
         }
 
         if (Object.keys(filter).length > 0) {
-            agg[0]['$vectorSearch']['filter'] = { $and: Object.entries(filter).map(([key, value]) => ({ [key]: value })) };
+            agg[0]["$vectorSearch"]["filter"] = {
+                $and: Object.entries(filter).map(([key, value]) => ({
+                    [key]: value,
+                })),
+            };
         }
 
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
 
         const totalCount = output.totalCount[0]?.count;
-        if (!totalCount || isNaN(totalCount)) return totalCount
+        if (!totalCount || isNaN(totalCount)) return totalCount;
         const currCount = page * count;
 
         return { results, hasNext: currCount < totalCount };
@@ -88,23 +95,35 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
 
 async function SemanticSearch(req, res) {
     try {
-        let { query, count = 10, page = 1, start, end, low, high, language, country, genre, type } = req.query;
+        let {
+            query,
+            count = 10,
+            page = 1,
+            start,
+            end,
+            low,
+            high,
+            language,
+            country,
+            genre,
+            type,
+        } = req.query;
         const decodedQuery = decodeURIComponent(query);
         let { userId } = req.body;
         let filters = {
             year: {
                 start: start || 0,
                 end: end || 2024,
-            }, 
-            languages: language || '',
-            countries: country || '',
-            genres: genre || '',
-            type: type || '', 
+            },
+            languages: language || "",
+            countries: country || "",
+            genres: genre || "",
+            type: type || "",
             rating: {
                 low: low || 0,
                 high: high || 10,
-            }
-        }
+            },
+        };
 
         if (!decodedQuery || decodedQuery.split(" ").length < 5) {
             return res.status(400).json({
@@ -138,7 +157,7 @@ async function SemanticSearch(req, res) {
             skip,
             filters,
         );
-        if (userId != null) saveSearch(userId, 1, query)
+        if (userId != null) saveSearch(userId, 1, query);
         res.status(200).json({ status: true, ...documents });
     } catch (err) {
         console.error(err);

@@ -9,7 +9,6 @@ const morgan = require("morgan");
 
 const PORT = process.env.PORT || 5000;
 
-
 require("./database")();
 const { connectMlModel } = require("./ml_model");
 connectMlModel();
@@ -58,7 +57,7 @@ const {
     adminRouter,
     movieRouter,
     paymentRouter,
-    userRouter
+    userRouter,
 } = require("./routes");
 const { populateTiers } = require("./utils");
 
