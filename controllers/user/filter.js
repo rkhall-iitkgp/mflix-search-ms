@@ -76,7 +76,6 @@ async function DeleteFilter(req, res) {
 async function GetFilter(req, res) {
     try {
         const { userId } = req.params;
-        const { name } = req.query;
         const user = await User.findById(userId);
 
         if (!user) {
@@ -85,21 +84,13 @@ async function GetFilter(req, res) {
                 message: "User not found",
             });
         }
-        const filter = user.savedFilters.find((filter) => filter.name === name);
 
-        if (!filter) {
-            return res.status(404).json({
-                status: false,
-                message: "Filter not found",
-            });
-        }
-
-        // Optionally, you can send back the specific filter instead of the entire user object
         res.status(200).json({
             status: true,
-            message: "Filter retrieved",
-            filter: filter,
+            message: "Filters retrieved successfully",
+            filters: user.savedFilters,
         });
+        
     } catch (error) {
         console.log("Error: ", error);
         res.status(500).json({
