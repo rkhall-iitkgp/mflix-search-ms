@@ -29,7 +29,7 @@ router.post("/create", auth, createUser);
 router.delete("/delete", auth, deleteUser);
 router.post("/watchlist", addToWatchlist);
 router.delete("/watchlist", deleteFromWatchlist);
-router.get("/watchlist", getWatchlist);
+router.get("/watchlist/:userId", getWatchlist);
 router.post("/search", saveSearch);
 router.get("/search", getSearchHistory);
 router.delete("/search", deleteSearch);

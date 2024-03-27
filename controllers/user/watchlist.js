@@ -36,7 +36,7 @@ async function deleteFromWatchlist(req, res) {
 
 async function getWatchlist(req, res) {
     try {
-        const userId = req.query.userId;
+        const userId = req.params.userId;
         const result = await User.findOne({ _id: userId })
             .populate(
                 "watchList.movie",
