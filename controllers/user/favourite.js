@@ -2,7 +2,8 @@ const { User } = require("../../models");
 
 async function addToFavourites(req, res) {
     try {
-        const { movie, userId } = req.body;
+        const { movie } = req.body;
+        const {userId} = req.params
         const movie_id = movie;
         const doc = await User.findOne({ _id: userId });
         const result = doc.favoriteMovies;
@@ -20,7 +21,8 @@ async function addToFavourites(req, res) {
 
 async function deleteFromFavourites(req, res) {
     try {
-        const { movie, userId } = req.body;
+        const { movie } = req.body;
+        const {userId} = req.params
         const movie_id = movie;
         let newdoc = await User.findOneAndUpdate(
             { _id: userId },
@@ -36,7 +38,7 @@ async function deleteFromFavourites(req, res) {
 
 async function getFavourites(req, res) {
     try {
-        const userId = req.query.userId;
+        const userId = req.params.userId;
         const result = await User.findOne({ _id: userId })
             .populate(
                 "favoriteMovies.movie",

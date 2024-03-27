@@ -2,7 +2,8 @@ const { User } = require("../../models");
 
 async function addToWatchlist(req, res) {
     try {
-        const { movie, userId } = req.body;
+        const { movie } = req.body;
+        const { userId } = req.params;
         const movie_id = movie;
         const doc = await User.findOne({ _id: userId });
         const result = doc.watchList;
@@ -20,7 +21,8 @@ async function addToWatchlist(req, res) {
 
 async function deleteFromWatchlist(req, res) {
     try {
-        const { movie, userId } = req.body;
+        const { movie } = req.body;
+        const { userId } = req.params;
         const movie_id = movie;
         let newdoc = await User.findOneAndUpdate(
             { _id: userId },
