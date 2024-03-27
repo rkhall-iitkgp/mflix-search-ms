@@ -17,14 +17,14 @@ async function getWatchHistory(req, res) {
 
 async function saveWatchHistory(req, res) {
     try {
-        const { movie, watchdurn } = req.body;
+        const { movie, duration } = req.body;
         const {userId} = req.params
         const doc = await User.findOne({ _id: userId });
-        const movie_id = movie._id.$oid;
+        const movie_id = movie;
         const result = doc.moviesWatched;
         result.push({
             movie: movie_id,
-            durationWatched: watchdurn,
+            durationWatched: duration,
         });
         let newdoc = await User.findOneAndUpdate(
             { _id: userId },
