@@ -107,4 +107,4 @@ async function GetFilter(req, res) {
     }
 }
 
-module.exports = { InitialFilter, CreateFilter, DeleteFilter, GetFilter };
+module.exports = { CreateFilter, DeleteFilter, GetFilter };
