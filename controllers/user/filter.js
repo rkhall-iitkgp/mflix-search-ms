@@ -2,7 +2,7 @@ const { Movie, User } = require("../../models");
 
 async function CreateFilter(req, res) {
     try {
-        const { userId ,name, filters } = req.body;
+        const { userId, name, filters } = req.body;
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({
@@ -14,7 +14,7 @@ async function CreateFilter(req, res) {
         // Create a new filter object
         const newFilter = {
             name: name,
-            filters: filters
+            filters: filters,
         };
 
         // Push the new filter object to the savedFilters array
@@ -26,9 +26,8 @@ async function CreateFilter(req, res) {
         res.status(200).json({
             status: true,
             message: "New filter added successfully",
-            user: user // Optionally, you can send back the updated user object
+            user: user, // Optionally, you can send back the updated user object
         });
-
     } catch (error) {
         console.log("Error: ", error);
         res.status(500).json({
@@ -52,7 +51,9 @@ async function DeleteFilter(req, res) {
         }
 
         // Filter out the filter with the specified name
-        user.savedFilters = user.savedFilters.filter(filter => filter.name !== name);
+        user.savedFilters = user.savedFilters.filter(
+            (filter) => filter.name !== name,
+        );
 
         // Save the updated user object
         await user.save();
@@ -60,7 +61,7 @@ async function DeleteFilter(req, res) {
         res.status(200).json({
             status: true,
             message: "Filter deleted successfully",
-            user: user // Optionally, you can send back the updated user object
+            user: user, // Optionally, you can send back the updated user object
         });
     } catch (error) {
         console.log("Error: ", error);
@@ -83,7 +84,7 @@ async function GetFilter(req, res) {
                 message: "User not found",
             });
         }
-        const filter = user.savedFilters.find(filter => filter.name === name);
+        const filter = user.savedFilters.find((filter) => filter.name === name);
 
         if (!filter) {
             return res.status(404).json({
@@ -91,7 +92,7 @@ async function GetFilter(req, res) {
                 message: "Filter not found",
             });
         }
-    
+
         // Optionally, you can send back the specific filter instead of the entire user object
         res.status(200).json({
             status: true,

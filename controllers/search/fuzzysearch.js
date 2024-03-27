@@ -1,9 +1,8 @@
 const { Movie } = require("../../models");
-const { saveSearch } = require("../user")
+const { saveSearch } = require("../user");
 
 const applyFilters = (filters) => {
-
-    let agg = []
+    let agg = [];
     if (filters.year.start && filters.year.end) {
         agg.push({
             $match: {
@@ -18,7 +17,7 @@ const applyFilters = (filters) => {
     if (filters.rating.low && filters.rating.high) {
         agg.push({
             $match: {
-                'imdb.rating': {
+                "imdb.rating": {
                     $gte: parseFloat(filters.rating.low),
                     $lte: parseFloat(filters.rating.high),
                 },
@@ -77,22 +76,33 @@ const applyFilters = (filters) => {
             poster: 1,
             title: 1,
             genres: 1,
-            'imdb.rating': 1,
-            'tomatoes.viewer.rating': 1,
+            "imdb.rating": 1,
+            "tomatoes.viewer.rating": 1,
             released: 1,
             runtime: 1,
             countries: 1,
         },
     });
 
-
     return agg;
-}
+};
 
 async function FuzzySearch(req, res) {
     try {
-        let { query, count = 10, page = 1, start, end, low, high, language, country, genre, type } = req.query;
-        let { userId } = req.body
+        let {
+            query,
+            count = 10,
+            page = 1,
+            start,
+            end,
+            low,
+            high,
+            language,
+            country,
+            genre,
+            type,
+        } = req.query;
+        let { userId } = req.body;
 
         let filters = {
             year: {
@@ -139,8 +149,7 @@ async function FuzzySearch(req, res) {
                     ],
                 },
             });
-        }
-        else {
+        } else {
             agg = [
                 {
                     $search: {
@@ -181,8 +190,8 @@ async function FuzzySearch(req, res) {
                                     },
                                 },
                             ],
-                        }
-                    }
+                        },
+                    },
                 },
             ];
 
@@ -205,12 +214,13 @@ async function FuzzySearch(req, res) {
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
         const totalCount = output.totalCount[0]?.count;
-        if (userId != null) saveSearch(userId, 0, query)
-        if (!totalCount || isNaN(totalCount)) return res.status(200).json({
-            status: true,
-            result: [],
-            message: "Error: " + "No Result Found",
-        });
+        if (userId != null) saveSearch(userId, 0, query);
+        if (!totalCount || isNaN(totalCount))
+            return res.status(200).json({
+                status: true,
+                result: [],
+                message: "Error: " + "No Result Found",
+            });
         const currCount = page * count;
 
         res.status(200).json({

@@ -1,8 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { ActiveLogin } = require("../models");
 
-const refresh = async(refreshToken) => {
-
+const refresh = async (refreshToken) => {
     try {
         let payload = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
         let user = await Account.findOne({ email: payload.email }).exec();
@@ -25,36 +24,35 @@ const refresh = async(refreshToken) => {
         return {
             success: true,
             message: "Token refreshed",
-            "account":user,
-            token: token
+            account: user,
+            token: token,
         };
-    }
-    catch (error) {
+    } catch (error) {
         console.error(error);
         return {
             success: false,
             message: "Error occured in refresh",
         };
     }
-}  
+};
 
-const auth = async(req, res, next) => {
+const auth = async (req, res, next) => {
     try {
         let token = req.cookies.accessToken;
         const refreshToken = req.cookies.refreshToken;
 
-        if(!refreshToken){
-            res.clearCookie('accessToken');
+        if (!refreshToken) {
+            res.clearCookie("accessToken");
             return res.status(401).json({
                 success: false,
                 message: "No refresh token provided",
             });
         }
 
-        if(!token){
+        if (!token) {
             const refreshResponse = await refresh(refreshToken);
-            if(!refreshResponse.success){
-                res.clearCookie('refreshToken');
+            if (!refreshResponse.success) {
+                res.clearCookie("refreshToken");
                 return res.status(401).json({
                     success: false,
                     message: refreshResponse.message,
@@ -70,14 +68,16 @@ const auth = async(req, res, next) => {
             token = refreshResponse.token;
         }
 
-
         const decoded = jwt.verify(token, process.env.ACCESS_SECRET);
         req.user = decoded;
-        const activeLoginInstance = await ActiveLogin.findOne({ sessionId: refreshToken, account: req.user.id }).exec();
-        
-        if(!activeLoginInstance){
-            res.clearCookie('accessToken');
-            res.clearCookie('refreshToken');
+        const activeLoginInstance = await ActiveLogin.findOne({
+            sessionId: refreshToken,
+            account: req.user.id,
+        }).exec();
+
+        if (!activeLoginInstance) {
+            res.clearCookie("accessToken");
+            res.clearCookie("refreshToken");
             return res.status(401).json({
                 success: false,
                 message: "Active login session not found",
@@ -85,8 +85,7 @@ const auth = async(req, res, next) => {
         }
 
         next();
-    } 
-    catch (error) {
+    } catch (error) {
         return res.status(401).json({
             success: false,
             message: "Error in Authentication",

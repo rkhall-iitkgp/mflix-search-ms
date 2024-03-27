@@ -2,21 +2,21 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { Account, ActiveLogin } = require("../../models");
 
-const verify = async(req, res)=>{
+const verify = async (req, res) => {
     try {
         let token = req.cookies.accessToken;
         const refreshToken = req.cookies.refreshToken;
-        if(!refreshToken){
-            res.clearCookie('accessToken');
+        if (!refreshToken) {
+            res.clearCookie("accessToken");
             return res.status(401).json({
                 success: false,
                 message: "No refresh token provided",
             });
         }
-        if(!token){
+        if (!token) {
             const refreshResponse = await refresh(refreshToken);
-            if(!refreshResponse.success){
-                res.clearCookie('refreshToken');
+            if (!refreshResponse.success) {
+                res.clearCookie("refreshToken");
                 return res.status(401).json({
                     success: false,
                     message: refreshResponse.message,
@@ -32,15 +32,18 @@ const verify = async(req, res)=>{
         const payload = jwt.verify(token, process.env.ACCESS_SECRET);
         req.user = payload;
 
-        const account = await Account.findById(req.user.id).populate({
-            path: "subscriptionTier", 
-            populate: { path: "tier", model: "tiers" },
-        }).populate({
-            path: "subscriptionTier", 
-            populate: { path: "bill", model: "payments" },
-        }).exec();
+        const account = await Account.findById(req.user.id)
+            .populate({
+                path: "subscriptionTier",
+                populate: { path: "tier", model: "tiers" },
+            })
+            .populate({
+                path: "subscriptionTier",
+                populate: { path: "bill", model: "payments" },
+            })
+            .exec();
 
-        if(!account){
+        if (!account) {
             return res.status(401).json({
                 success: false,
                 message: "User not found",
@@ -49,19 +52,19 @@ const verify = async(req, res)=>{
 
         return res.status(200).json({
             success: true,
-            message: "Token verified", 
+            message: "Token verified",
             account: account,
         });
     } catch (error) {
         console.error(error);
-        res.clearCookie('refreshToken');
-        res.clearCookie('accessToken');
+        res.clearCookie("refreshToken");
+        res.clearCookie("accessToken");
         return res.status(401).json({
             success: false,
             message: "Invalid token",
         });
     }
-}
+};
 
 const login = async (req, res) => {
     try {
@@ -91,7 +94,7 @@ const login = async (req, res) => {
             role: user.role,
         };
         const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch){
+        if (!isMatch) {
             return res.status(401).json({
                 success: false,
                 message: "Invalid credentials",
@@ -117,7 +120,7 @@ const login = async (req, res) => {
 
         const activeLoginInstance = new ActiveLogin(activeLogin);
         await activeLoginInstance.save();
-        
+
         user.activeLogins.push(activeLoginInstance._id);
         await Account.findByIdAndUpdate(user._id, user).exec();
 
@@ -131,14 +134,12 @@ const login = async (req, res) => {
             expires: new Date(Date.now() + 60 * 60 * 1000),
             httpOnly: true,
             secure: process.env.DEPLOYMENT === "local" ? false : true,
-        
         });
         res.status(200).json({
             success: true,
             message: "Login successful",
-            "account":user,
+            account: user,
         });
-
     } catch (error) {
         console.error(error);
         res.status(500).json({
@@ -148,4 +149,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = {login, verify};
+module.exports = { login, verify };

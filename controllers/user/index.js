@@ -1,15 +1,37 @@
 const createUser = require("./createUser");
 const deleteUser = require("./deleteUser");
-const addToWatchlist =require('./addToWatchlist')
-const saveWatchHistory =require('./saveWatchHistory')
-const getSearchHistory=require('./getSearchHistory')
-const saveSearch=require('./saveSearchHistory')
-const addToFavourites=require('./addToFavourites')
-const getWatchHistory=require('./getWatchHistory')
-const getFavourites=require('./getFavourites')
-const getWatchlist=require('./getWatchlist')
-const deleteSearchHistory=require('./deleteSearchHistory')
-const deleteFromWatchlist=require('./deleteFromWatchlist')
-const deleteFromFavourites=require('./deleteFromFavourites')
-const { CreateFilter, DeleteFilter, GetFilter } = require('./filter')
-module.exports = { CreateFilter, DeleteFilter, GetFilter,deleteFromFavourites,deleteFromWatchlist,deleteSearchHistory,createUser, deleteUser,addToWatchlist,getSearchHistory,saveWatchHistory,saveSearch,addToFavourites,getWatchHistory,getWatchlist,getFavourites};
+const {
+    addToFavourites,
+    getFavourites,
+    deleteFromFavourites,
+} = require("./favourite");
+const { CreateFilter, DeleteFilter, GetFilter } = require("./filter");
+const {
+    addToWatchlist,
+    deleteFromWatchlist,
+    getWatchlist,
+} = require("./watchlist");
+const {
+    saveSearch,
+    getSearchHistory,
+    deleteSearch,
+} = require("./searchHistory");
+const { saveWatchHistory, getWatchHistory } = require("./watchHistory");
+module.exports = {
+    CreateFilter,
+    DeleteFilter,
+    GetFilter,
+    deleteFromFavourites,
+    deleteFromWatchlist,
+    deleteSearch,
+    createUser,
+    deleteUser,
+    addToWatchlist,
+    getSearchHistory,
+    saveWatchHistory,
+    saveSearch,
+    addToFavourites,
+    getWatchHistory,
+    getWatchlist,
+    getFavourites,
+};
