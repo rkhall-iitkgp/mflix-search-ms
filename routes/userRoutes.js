@@ -22,9 +22,9 @@ const {
 router.get("/", (req, res) => {
     res.send("hello");
 });
-router.get("/filter", GetFilter);
-router.post("/filter", CreateFilter);
-router.delete("/filter", DeleteFilter);
+router.get("/filter/:userId", GetFilter);
+router.post("/filter/:userId", CreateFilter);
+router.delete("/filter/:userId", DeleteFilter);
 router.post("/create", auth, createUser);
 router.delete("/delete", auth, deleteUser);
 router.post("/watchlist/:userId", addToWatchlist);

@@ -2,7 +2,8 @@ const { Movie, User } = require("../../models");
 
 async function CreateFilter(req, res) {
     try {
-        const { userId, name, filters } = req.body;
+        const {userId} = req.params;
+        const {name, filters } = req.body;
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({
@@ -39,7 +40,7 @@ async function CreateFilter(req, res) {
 
 async function DeleteFilter(req, res) {
     try {
-        const { userId } = req.body;
+        const { userId } = req.params;
         const { name } = req.query;
         const user = await User.findById(userId);
 
@@ -74,7 +75,7 @@ async function DeleteFilter(req, res) {
 
 async function GetFilter(req, res) {
     try {
-        const { userId } = req.body;
+        const { userId } = req.params;
         const { name } = req.query;
         const user = await User.findById(userId);
 
