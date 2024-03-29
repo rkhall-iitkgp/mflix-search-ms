@@ -16,7 +16,8 @@ const verifyOTP = async (req, res) => {
         req.user = decoded;
     }
 
-    const { email, otp, newPassword } = req.body;
+    const { otp, newPassword } = req.body;
+    let email = req.body.email || req.user.email;
     if (!otp || !email || !newPassword)
         return res
             .status(400)
