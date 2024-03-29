@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const { Account, User } = require("../../models");
+const { Account, User, ActiveLogin } = require("../../models");
 const { client } = require("../../redis");
 const jwt = require("jsonwebtoken");
 
@@ -69,25 +69,23 @@ const verifyOTP = async (req, res) => {
                 role: user.role,
             };
 
-            const token = jwt.sign(payload, process.env.ACCESS_SECRET, {
-                expiresIn: process.env.ACCESS_EXPIRE_TIME,
-            });
-
-            res.cookie("accessToken", token, {
-                httpOnly: true,
-                secure: true, 
-                sameSite: "none",
-            });
-
             const userProfile = new User({ name: user.name });
             await userProfile.save();
 
             user.userProfiles.push(userProfile._id);
             await user.save();
 
-            user.password = undefined;
+            const activeLoginInstance = new ActiveLogin({
+                account: user._id,
+                sessionId: req.cookies.refreshToken,
+            });
 
-            const newUser = await Account.findOne({ email }).populate({
+            await activeLoginInstance.save();
+
+            user.activeLogins.push(activeLoginInstance._id);
+            await Account.findByIdAndUpdate(user._id, user).exec();
+
+            const newUser = await Account.findOne({ email }).select("-password").populate({
                 path: "subscriptionTier",
                 populate: { path: "tier", model: "tiers" },
             }).populate({
@@ -95,12 +93,34 @@ const verifyOTP = async (req, res) => {
                 model: "users",
             }).exec();
 
+            const token = jwt.sign(payload, process.env.ACCESS_SECRET, {
+                expiresIn: process.env.ACCESS_EXPIRE_TIME,
+            });
+
+            const refreshToken = jwt.sign(payload, process.env.REFRESH_SECRET, {
+                expiresIn: process.env.REFRESH_EXPIRE_TIME,
+            });
+
+            res.cookie("accessToken", token, {
+                httpOnly: true,
+                secure: true, 
+                sameSite: "none",
+                expires: new Date(Date.now() + 60 * 60 * 1000),
+            });
+
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+                expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            });
+
             return res
                 .status(200)
                 .json({
                     message: "User registered successfully",
                     success: true,
-                    account: user,
+                    account: newUser,
                 });
         }
 

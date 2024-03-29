@@ -1,9 +1,9 @@
 const { Account, ActiveLogin } = require("../../models");
 
 const logout = async (req, res) => {
-    const { email } = req.user;
 
     try {
+        const { email } = req.user;
         const user = await Account.findOne({ email }).exec();
         if (!user) {
             return res.status(401).json({
