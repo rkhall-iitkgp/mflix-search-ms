@@ -1,3 +1,4 @@
 const GetAllMovies = require("./AllMovies");
 const GetMovieById = require("./movieById");
-module.exports = { GetAllMovies, GetMovieById };
+const GetByAwards =require("./awards")
+module.exports = {GetAllMovies,GetMovieById,GetByAwards};

@@ -1,6 +1,6 @@
 const { Movie } = require("../../models");
 
-module.exports = async (req, res) => {
+async function moviesbyid(req, res){
     try {
         const { id } = req.params;
         const result = await Movie.findById(id).select(
@@ -17,3 +17,4 @@ module.exports = async (req, res) => {
         });
     }
 };
+module.exports=moviesbyid
