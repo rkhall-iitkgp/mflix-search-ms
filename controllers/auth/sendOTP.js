@@ -1,6 +1,35 @@
 const { Account } = require("../../models");
 const genAndSendOTP = require("./otp");
 const jwt = require("jsonwebtoken");
+const { client } = require("../../redis");
+
+
+const resendOTP = async (req, res) => {
+
+    try{
+        let email = req.body.email || req.user.email;
+        if(!email) return res.status(400).json({message: "Invalid input", success: false});
+
+        if(!client.isOpen) return res.status(500).json({message: "Internal Server Error", success: false});
+
+        const secret = await client.get(email, async (err, reply) => {
+            if(err){
+                console.log("error in getting redis key", err);
+                return false;
+            }
+            return reply;
+        });
+
+        if(!secret) return res.status(400).json({message: "OTP expired", success: false});
+
+        const otp = genAndSendOTP(email);
+        return res.status(200).json({message: "OTP sent successfully", success: true});
+    }
+    catch(error){
+        console.error(error);
+        return res.status(500).json({message: "Internal Server Error", success: false});
+    }
+}
 
 const sendOTP = async (req, res) => {
     const { type } = req.body;
@@ -48,4 +77,4 @@ const sendOTP = async (req, res) => {
     return res.status(400).json({ message: "Invalid type", success: false });
 };
 
-module.exports = sendOTP;
+module.exports = {sendOTP, resendOTP};
