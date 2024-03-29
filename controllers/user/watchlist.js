@@ -36,13 +36,14 @@ async function deleteFromWatchlist(req, res) {
     }
 }
 
+
 async function getWatchlist(req, res) {
     try {
         const userId = req.params.userId;
         const result = await User.findOne({ _id: userId })
             .populate(
                 "watchList.movie",
-                "_id title plot genres languages year imdb tomatoes",
+                "_id title plot poster genres languages year imdb tomatoes released runtime countries awards",
             )
             .exec();
         res.json(result.watchList);
