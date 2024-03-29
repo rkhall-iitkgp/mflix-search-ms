@@ -73,7 +73,8 @@ const verifyOTP = async (req, res) => {
 
         res.cookie("accessToken", token, {
             httpOnly: true,
-            // secure: process.env.DEPLOYMENT === "local" ? false : true,
+            secure: true, 
+            sameSite: "none",
         });
 
         const userProfile = new User({ name: user.name });
