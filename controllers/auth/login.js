@@ -26,7 +26,7 @@ const verify = async (req, res) => {
             res.cookie("accessToken", token, {
                 expires: new Date(Date.now() + 60 * 60 * 1000),
                 httpOnly: true,
-                secure: process.env.DEPLOYMENT === "local" ? false : true,
+                // secure: process.env.DEPLOYMENT === "local" ? false : true,
             });
         }
         const payload = jwt.verify(token, process.env.ACCESS_SECRET);
@@ -79,7 +79,7 @@ const login = async (req, res) => {
         }
 
         //check for registered User
-        let user = await Account.findOne({ email }).select("+password").exec();
+        let user = await Account.findOne({ email }).select("+password").populate({path: "subscriptionTier", populate: {path: "tier", model: "tiers"}}).populate({path: "userProfiles", model: "users"}).exec();
         //if user not registered or not found in database
         if (!user) {
             return res.status(401).json({
@@ -108,7 +108,6 @@ const login = async (req, res) => {
             expiresIn: process.env.REFRESH_EXPIRE_TIME,
         });
         user = user.toObject();
-        user.password = undefined;
 
         const activeLogin = {
             account: user._id,
@@ -124,16 +123,18 @@ const login = async (req, res) => {
         user.activeLogins.push(activeLoginInstance._id);
         await Account.findByIdAndUpdate(user._id, user).exec();
 
+        user.password = undefined;
+
         res.cookie("refreshToken", refreshToken, {
             expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
             httpOnly: true,
-            secure: process.env.DEPLOYMENT === "local" ? false : true,
+            // secure: process.env.DEPLOYMENT === "local" ? false : true,
         });
 
         res.cookie("accessToken", token, {
             expires: new Date(Date.now() + 60 * 60 * 1000),
             httpOnly: true,
-            secure: process.env.DEPLOYMENT === "local" ? false : true,
+            // secure: process.env.DEPLOYMENT === "local" ? false : true,
         });
         res.status(200).json({
             success: true,

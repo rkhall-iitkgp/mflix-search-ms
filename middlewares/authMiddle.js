@@ -62,7 +62,7 @@ const auth = async (req, res, next) => {
             res.cookie("accessToken", refreshResponse.token, {
                 expires: new Date(Date.now() + 60 * 60 * 1000),
                 httpOnly: true,
-                secure: process.env.DEPLOYMENT === "local" ? false : true,
+                // secure: process.env.DEPLOYMENT === "local" ? false : true,
             });
 
             token = refreshResponse.token;
