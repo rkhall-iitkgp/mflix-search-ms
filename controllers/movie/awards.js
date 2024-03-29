@@ -19,7 +19,7 @@ const applyFilters = (filters) => {
             title: 1,
             genres: 1,
             "imdb.rating": 1,
-            "tomatoes.viewer.rating": 1,
+            "tomatoes.viewer.meter": 1,
             released: 1,
             runtime: 1,
             countries: 1,
