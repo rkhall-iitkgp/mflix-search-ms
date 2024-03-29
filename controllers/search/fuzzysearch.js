@@ -3,7 +3,7 @@ const { saveSearch } = require("../user");
 
 const applyFilters = (filters) => {
     let agg = [];
-    if (filters.year.start && filters.year.end) {
+    if (filters.year && filters.year.start && filters.year.end) {
         agg.push({
             $match: {
                 year: {
@@ -14,7 +14,7 @@ const applyFilters = (filters) => {
         });
     }
 
-    if (filters.rating.low && filters.rating.high) {
+    if (filters.rating && filters.rating.low && filters.rating.high) {
         agg.push({
             $match: {
                 "imdb.rating": {
@@ -25,37 +25,37 @@ const applyFilters = (filters) => {
         });
     }
 
-    if (filters.languages.length > 0) {
+    if (filters.languages && filters.languages.length > 0) {
         agg.push({
             $match: {
                 languages: {
-                    $in: [filters.languages],
+                    $in: filters.languages
                 },
             },
         });
     }
 
-    if (filters.countries.length > 0) {
+    if (filters.countries && filters.countries.length > 0) {
         agg.push({
             $match: {
                 countries: {
-                    $in: [filters.countries],
+                    $in: filters.countries,
                 },
             },
         });
     }
 
-    if (filters.genres.length > 0) {
+    if (filters.genres && filters.genres.length > 0) {
         agg.push({
             $match: {
                 genres: {
-                    $in: [filters.genres],
+                    $in: filters.genres,
                 },
             },
         });
     }
 
-    if (filters.type.length > 0) {
+    if (filters.type && filters.type.length > 0) {
         agg.push({
             $match: {
                 type: {
@@ -64,10 +64,6 @@ const applyFilters = (filters) => {
             },
         });
     }
-
-    agg.push({
-        $limit: 10,
-    });
 
     agg.push({
         $project: {
@@ -81,6 +77,8 @@ const applyFilters = (filters) => {
             released: 1,
             runtime: 1,
             countries: 1,
+            tier: 1,
+            languages: 1,
         },
     });
 
@@ -93,31 +91,9 @@ async function FuzzySearch(req, res) {
             query,
             count = 10,
             page = 1,
-            start,
-            end,
-            low,
-            high,
-            language,
-            country,
-            genre,
-            type,
         } = req.query;
-        let { userId } = req.body;
-
-        let filters = {
-            year: {
-                start: start || 0,
-                end: end || 2024,
-            },
-            rating: {
-                low: low || 0,
-                high: high || 10,
-            },
-            languages: language || "",
-            countries: country || "",
-            genres: genre || "",
-            type: type || "",
-        };
+        let { userId, filters } = req.body;
+        if(!filters) filters = {};
 
         if (
             isNaN(parseInt(count)) ||
@@ -208,8 +184,6 @@ async function FuzzySearch(req, res) {
                 },
             });
         }
-
-        console.log(agg);
 
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;

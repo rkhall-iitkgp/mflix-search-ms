@@ -4,7 +4,7 @@ async function AutoComplete(req, res) {
     try {
         let { query, count = 5 } = req.query;
 
-        if (!query || query.length < 3) {
+        if (!query) {
             return res.status(400).json({
                 status: false,
                 message: "Error: " + "Query length is too small",

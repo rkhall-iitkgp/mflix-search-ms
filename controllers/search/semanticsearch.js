@@ -27,6 +27,7 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
                     released: 1,
                     runtime: 1,
                     countries: 1,
+                    tier: 1,
                 },
             },
             {
@@ -42,34 +43,34 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
         ];
         let filter = {};
 
-        if (filters.year.length > 0) {
+        if (filters.year && filters.year.length > 0) {
             filter["year"] = {
                 $gte: parseInt(filters.year.start),
                 $lte: parseInt(filters.year.end),
             };
         }
 
-        if (filters.rating.low && filters.rating.high) {
+        if (filters.rating && filters.rating.low && filters.rating.high) {
             filter["imdb.rating"] = {
                 $gt: parseFloat(filters.rating.low),
                 $lt: parseFloat(filters.rating.high),
             };
         }
 
-        if (filters.languages.length > 0) {
+        if (filters.languages && filters.languages.length > 0) {
             filter["languages"] = { $in: filters.languages };
         }
 
-        if (filters.countries.length > 0) {
+        if (filters.countries && filters.countries.length > 0) {
             filter["countries"] = { $in: filters.countries };
         }
 
-        if (filters.genres.length > 0) {
+        if (filters.genres && filters.genres.length > 0) {
             filter["genres"] = { $in: filters.genres };
         }
 
-        if (filters.type.length > 0) {
-            filter["type"] = { $in: filters.type };
+        if (filters.type && filters.type.length > 0) {
+            filter["type"] = { $in: [filters.type] };
         }
 
         if (Object.keys(filter).length > 0) {
@@ -79,6 +80,7 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
                 })),
             };
         }
+
 
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
@@ -99,31 +101,9 @@ async function SemanticSearch(req, res) {
             query,
             count = 10,
             page = 1,
-            start,
-            end,
-            low,
-            high,
-            language,
-            country,
-            genre,
-            type,
         } = req.query;
         const decodedQuery = decodeURIComponent(query);
-        let { userId } = req.body;
-        let filters = {
-            year: {
-                start: start || 0,
-                end: end || 2024,
-            },
-            languages: language || "",
-            countries: country || "",
-            genres: genre || "",
-            type: type || "",
-            rating: {
-                low: low || 0,
-                high: high || 10,
-            },
-        };
+        let { userId, filters } = req.body;
 
         if (!decodedQuery || decodedQuery.split(" ").length < 5) {
             return res.status(400).json({
