@@ -135,6 +135,7 @@ const login = async (req, res) => {
             expires: new Date(Date.now() + 60 * 60 * 1000),
             httpOnly: true,
             // secure: process.env.DEPLOYMENT === "local" ? false : true,
+            sameSite: "none",
         });
         res.status(200).json({
             success: true,
