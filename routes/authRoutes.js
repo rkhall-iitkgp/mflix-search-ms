@@ -1,17 +1,26 @@
 const express = require("express");
 const router = express.Router();
+const { auth } = require("../middlewares");
 
-router.post("/register", (req, res) => {
-  // TODO : Add schema verifications
-  res.send("hello");
-});
+const {
+    sendOTP,
+    login,
+    verifyOTP,
+    logout,
+    getActiveLogins,
+    removeActiveLogin,
+    verify,
+} = require("../controllers/auth");
 
-router.post("/login", (req, res) => {
-  res.send("hello");
-});
-
-router.post("/verify/otp", (req, res) => {
-  res.send("hello");
-});
+// login into application
+router.post("/login", login);
+// send otp for Register and Reset Password
+router.post("/sendOTP", sendOTP);
+// verify otp for Register and Reset Password
+router.post("/verifyOTP", verifyOTP);
+router.post("/logout", auth, logout);
+router.post("/removeActiveLogin", auth, removeActiveLogin);
+router.get("/getActiveLogins", auth, getActiveLogins);
+router.get("/verify", verify);
 
 module.exports = router;
