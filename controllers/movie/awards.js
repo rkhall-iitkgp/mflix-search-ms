@@ -1,8 +1,8 @@
 const { Movie } = require("../../models");
 
-async function allmovies(req, res) {
+async function awards(req, res) {
     try {
-        let { count = 10, page = 1 } = req.query;
+        let { count = 50, page = 1 } = req.query;
 
         if (
             isNaN(parseInt(count)) ||
@@ -30,11 +30,7 @@ async function allmovies(req, res) {
                 _id: 1,
                 title: 1,
                 plot: 1,
-                imdb: 1,
-                tomatoes: 1,
-                genre: 1,
-                country: 1,
-                release: 1,
+                awards: 1,
             })
             .exec();
         res.status(200).json({
@@ -51,4 +47,4 @@ async function allmovies(req, res) {
     }
 };
 
-module.exports =allmovies
+module.exports =awards
