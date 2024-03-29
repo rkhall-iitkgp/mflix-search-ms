@@ -73,7 +73,7 @@ const verifyOTP = async (req, res) => {
 
         res.cookie("accessToken", token, {
             httpOnly: true,
-            secure: process.env.DEPLOYMENT === "local" ? false : true,
+            // secure: process.env.DEPLOYMENT === "local" ? false : true,
         });
 
         const userProfile = new User({ name: user.name });
@@ -83,6 +83,14 @@ const verifyOTP = async (req, res) => {
         await user.save();
 
         user.password = undefined;
+
+        const newUser = await Account.findOne({ email }).populate({
+            path: "subscriptionTier",
+            populate: { path: "tier", model: "tiers" },
+        }).populate({
+            path: "userProfiles",
+            model: "users",
+        }).exec();
 
         return res
             .status(200)

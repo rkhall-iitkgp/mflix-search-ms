@@ -1,4 +1,4 @@
-const {Account, User} = require("../../models");
+const {Account, User, ActiveLogin} = require("../../models");
 
 const getUserDetails = async (req, res) => {
 
@@ -13,6 +13,10 @@ const getUserDetails = async (req, res) => {
             path: "userProfiles",
             model: "users",
             match: { _id: userId }
+        }).populate({
+            path: "activeLogins",
+            model: "activeLogin",
+            select: "loginTime userAgent ipAddress"
         }).exec()
         
         if (!account) {
