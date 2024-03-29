@@ -21,6 +21,9 @@ app.use(
         secret: process.env.REFRESH_SECRET,
         resave: false,
         saveUninitialized: true,
+        cookie: {
+            sameSite: 'none'
+        }
     }),
 );
 
