@@ -47,6 +47,9 @@ async function AutoComplete(req, res) {
                         ],
                         minimumShouldMatch: 1,
                     },
+                    "highlight": {
+                        "path": ["title", "directors", "cast"]
+                    },
                 },
             },
             {
@@ -56,15 +59,36 @@ async function AutoComplete(req, res) {
                 $project: {
                     _id: 0,
                     title: 1,
-                    plot: 1,
+                    highlights: { $meta: "searchHighlights" },
                     score: { $meta: "searchScore" },
                 },
             },
         ];
-        // run pipelines
         const result = await Movie.aggregate(agg);
 
-        // print results
+        result.forEach((movie) => {
+            const highlights = movie.highlights;
+            let maxScore = 0;
+            let maxPath = "";
+            let maxText = "";
+            let maxNext = "";
+            highlights.forEach((highlight) => {
+                if (highlight.score > maxScore) {
+                    maxScore = highlight.score;
+                    maxPath = highlight.path;
+                    maxText = highlight.texts[0].value;
+                    maxNext = highlight.texts[1] ? highlight.texts[1].value : "";
+                }
+            });
+            movie.highlight = {
+                path: maxPath,
+                text: maxText,
+                next: maxNext,
+            };
+            delete movie.highlights;
+        }
+        );
+
         res.status(200).json({
             status: true,
             result,
