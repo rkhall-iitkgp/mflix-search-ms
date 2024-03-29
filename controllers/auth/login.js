@@ -128,14 +128,14 @@ const login = async (req, res) => {
         res.cookie("refreshToken", refreshToken, {
             expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
             httpOnly: true,
-            // secure: process.env.DEPLOYMENT === "local" ? false : true,
+            secure: true,
             sameSite: "none",
         });
 
         res.cookie("accessToken", token, {
             expires: new Date(Date.now() + 60 * 60 * 1000),
             httpOnly: true,
-            // secure: process.env.DEPLOYMENT === "local" ? false : true,
+            secure: true, 
             sameSite: "none",
         });
         res.status(200).json({
