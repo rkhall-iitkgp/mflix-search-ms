@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { getMoviesbypage, createMovie, updateMovie, deleteMovie, newMovieEmbed } = require("../controllers/admin/index");
+const { getMoviesbypage, createMovie, updateMovie, deleteMovie, newMovieEmbed } = require("../controllers/admin");
 const { validateMovie } = require("../middlewares/admin/validation");
 
 router.get("/", (req, res) => {
