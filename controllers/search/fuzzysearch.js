@@ -188,7 +188,7 @@ async function FuzzySearch(req, res) {
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
         const totalCount = output.totalCount[0]?.count;
-        if (userId != null) saveSearch(userId, 0, query);
+        if (!userId) saveSearch(userId, 0, query);
         if (!totalCount || isNaN(totalCount))
             return res.status(200).json({
                 status: true,
