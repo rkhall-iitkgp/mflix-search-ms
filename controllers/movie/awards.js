@@ -50,14 +50,6 @@ async function awards(req, res) {
         const skip = (page - 1) * count;
 
         let agg = []
-        // agg = [
-        //     {
-        //         $search: {
-        //             index: "award_movies"
-
-        //         },
-        //     },
-        // ];
         agg.push({
             $sort:{
                 'awards.wins':-1

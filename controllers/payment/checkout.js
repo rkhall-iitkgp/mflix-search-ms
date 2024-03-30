@@ -5,10 +5,10 @@ const { Payment, User, Tier } = require("../../models");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 async function checkout(req, res) {
-    const { user } = req;
-    const { product } = req.body;
-    const { redirectURL } = req.params;
+
     try {
+        const { product, user } = req.body;
+        const { redirectURL } = req.params;
         // check for userId exist or not if not return
 
         if (!user) {
