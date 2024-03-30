@@ -5,10 +5,8 @@ const { Payment, User, Tier } = require("../../models");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 async function checkout(req, res) {
-
     try {
         const { product, user } = req.body;
-        const { redirectURL } = req.params;
         // check for userId exist or not if not return
 
         if (!user) {
@@ -80,8 +78,8 @@ async function checkout(req, res) {
             customer: customer.id, //customerid of stripe
             payment_method_types: ["card"],
             mode: "payment",
-            success_url: redirectURL || process.env.FRONTEND_URL, // Redirect to frontend success page
-            cancel_url: redirectURL || process.env.FRONTEND_URL, // Redirect to frontend cancel page
+            success_url: `${process.env.FRONTEND_URL}/userprofile`, // Redirect to frontend success page
+            cancel_url: `${process.env.FRONTEND_URL}/pricing`, // Redirect to frontend cancel page
             metadata: {
                 userId: user.id,
                 expiredOn: renewalDate,
@@ -90,7 +88,10 @@ async function checkout(req, res) {
         res.json({ sessionId: session.id, session });
     } catch (error) {
         console.error("Error creating checkout session:", error);
-        res.status(500).json({ message: "Failed to create checkout session", error});
+        res.status(500).json({
+            message: "Failed to create checkout session",
+            error,
+        });
     }
 }
 module.exports = checkout;
