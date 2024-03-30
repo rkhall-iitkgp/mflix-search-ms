@@ -35,6 +35,7 @@ app.use(
     }),
 );
 
+
 // Redis Server connection
 const { client } = require("./redis");
 try {
@@ -72,6 +73,7 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRouter);
 app.use("/search", searchRouter);
+app.use("/admin", adminRouter);
 app.use("/chatbot", chatbotRouter);
 app.use("/admin", adminRouter);
 app.use("/movies", movieRouter);

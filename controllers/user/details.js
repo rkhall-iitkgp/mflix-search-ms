@@ -3,7 +3,6 @@ const {Account, User, ActiveLogin} = require("../../models");
 const getUserDetails = async (req, res) => {
 
     try {
-        const {userId} = req.params
         const {email} = req.user
         console.log("Email: ", email)
         const account = await Account.findOne({email}).select("-password").populate({
@@ -12,7 +11,6 @@ const getUserDetails = async (req, res) => {
         }).populate({
             path: "userProfiles",
             model: "users",
-            match: { _id: userId }
         }).populate({
             path: "activeLogins",
             model: "activeLogin",
