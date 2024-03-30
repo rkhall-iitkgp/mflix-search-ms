@@ -2,12 +2,18 @@
 
 This is a Node.js microservice built to provide search functionality for a movie database. It utilizes MongoDB for data storage and implements user authentication, storing user search history securely.
 
+## Features
+- Movie Search - Fuzzy, Semantic
+- User Authentication
+- Movie Search
+- Payment
+
 ## Installation
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/rkhall-iitkgp/mflix-search-ms.git
+git clone https://github.com/{GITHUB_ID}/mflix-search-ms.git
 ```
 
 2. Install dependencies:
