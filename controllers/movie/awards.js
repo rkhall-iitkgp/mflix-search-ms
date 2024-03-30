@@ -24,6 +24,7 @@ const applyFilters = (filters) => {
             runtime: 1,
             countries: 1,
             awards:1,
+            tier: 1,
         },
     });
 
