@@ -141,7 +141,7 @@ async function SemanticSearch(req, res) {
             skip,
             filters,
         );
-        if (userId != null) saveSearch(userId, 1, query);
+        if (!userId) saveSearch(userId, 1, query);
         res.status(200).json({ status: true, ...documents });
     } catch (err) {
         console.error(err);
