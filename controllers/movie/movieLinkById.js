@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
 
         account = account.toObject();
 
-        if (account.subscriptionTier.tier.name === "Premium") {
+        if (account.subscriptionTier.tier.name !== "Free") {
             res.status(200).json({
                 status: true,
                 result,
