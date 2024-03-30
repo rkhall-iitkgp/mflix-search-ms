@@ -11,25 +11,32 @@ module.exports = async (req, res) => {
             .exec()
 
         account = account.toObject();
+
+        const { id } = req.params;
+        const result = await Movie.findById(id)
+            .select({
+                videoSrc: 1,
+            }).exec();
+        const movie = result.toObject();
+
+
         if (account.subscriptionTier.tier.name === "Premium") {
-            const { id } = req.params;
-            const result = await Movie.findById(id)
-                .select({
-                    videoSrc: 1
-                }).exec();
-
-
             res.status(200).json({
                 status: true,
                 result
             });
-
         } else {
-            res.status(200).json({
-                status: true,
-                result: {}
-            });
-
+            if (movie.tier.toLowerCase() === "free") {
+                res.status(200).json({
+                    status: true,
+                    result
+                });
+            } else {
+                res.status(200).json({
+                    status: true,
+                    result: {}
+                });
+            }
         }
     } catch (error) {
         res.status(500).json({
