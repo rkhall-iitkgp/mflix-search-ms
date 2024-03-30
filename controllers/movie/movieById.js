@@ -45,3 +45,5 @@ async function moviesbyid(req, res) {
         });
     }
 };
+
+module.exports = moviesbyid
