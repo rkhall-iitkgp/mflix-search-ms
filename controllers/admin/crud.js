@@ -3,7 +3,7 @@ const Movie = require("../../models/movieModel");
 const getMoviesbypage = async (req, res) => {
     try {
         const page = parseInt(req.params.page);
-        const limit = 10; // Adjust the limit as needed
+        const limit = 12; // Adjust the limit as needed
 
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
