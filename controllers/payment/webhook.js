@@ -1,5 +1,5 @@
 const Stripe = require("stripe");
-const { User, Payment } = require("../../models");
+const { Account, Payment } = require("../../models");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 async function webhook(req, res) {
@@ -36,7 +36,7 @@ async function webhook(req, res) {
                 );
 
                 if (updatedPayment) {
-                    const updatedUser = await User.findOneAndUpdate(
+                    const updatedUser = await Account.findOneAndUpdate(
                         { _id: userId },
                         {
                             $set: {
