@@ -13,7 +13,6 @@ require("./database")();
 const { connectMlModel } = require("./ml_model");
 connectMlModel();
 const cors = require("cors");
-app.use(express.json());
 app.use(morgan("tiny"));
 
 app.use(
@@ -46,7 +45,6 @@ try {
     console.log(e);
 }
 
-app.use(express.json());
 
 app.use((req, res, next) => {
     if (req.originalUrl === "/payment/stripe/webhook") {
