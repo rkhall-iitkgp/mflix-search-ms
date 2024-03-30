@@ -53,15 +53,7 @@ module.exports = async (req, res) => {
 
         account = account.toObject();
 
-        const { id } = req.params;
-        const result = await Movie.findById(id)
-            .select({
-                uploadurl: 1,
-            }).exec();
-        const movie = result.toObject();
-
-
-        if (account.subscriptionTier.tier.name !== "Free") {
+        if (account.subscriptionTier.tier.name === "Premium") {
             res.status(200).json({
                 status: true,
                 result,
