@@ -2,6 +2,7 @@ const { Movie, Account } = require("../../models");
 
 module.exports = async (req, res) => {
     try {
+        const { id } = req.params;
         const result = await Movie.findById(id)
             .select({
                 videoSrc: 1,
@@ -48,8 +49,6 @@ module.exports = async (req, res) => {
             .exec();
 
         account = account.toObject();
-
-        const { id } = req.params;
 
         if (account.subscriptionTier.tier.name === "Premium") {
             res.status(200).json({
