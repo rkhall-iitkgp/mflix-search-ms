@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { ActiveLogin } = require("../models");
+const { ActiveLogin, Account } = require("../models");
 
 const refresh = async (refreshToken) => {
     try {
