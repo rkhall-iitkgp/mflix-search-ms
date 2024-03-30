@@ -1,46 +1,49 @@
+const { refresh } = require("../../middlewares");
 const { Movie, Account } = require("../../models");
+const jwt = require("jsonwebtoken");
 
 module.exports = async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await Movie.findById(id)
-            .select({
-                videoSrc: 1,
-            })
-            .exec();
+        const result = await Movie.findById(id).select({
+            uploadurl: 1,
+            tier: 1,
+        });
+        // console.log("result", result);
         const movie = result.toObject();
+        // console.log("movie", movie);
         let token = req.cookies.accessToken;
         const refreshToken = req.cookies.refreshToken;
-
-        if (!refreshToken) {
+        console.log("token,refreshToken", token, refreshToken);
+        if (!refreshToken || !token) {
             if (movie.tier.toLowerCase() === "free")
                 return res.status(200).json({
                     success: true,
                     result: result,
                 });
-        }
+            else {
+                console.log("result11", movie.uploadurl.trailersrc);
 
-        if (!token) {
-            const refreshResponse = await refresh(refreshToken);
-            if (!refreshResponse.success) {
-                res.clearCookie("refreshToken");
-                return res.status(401).json({
+                return res.status(200).json({
                     success: false,
-                    message: refreshResponse.message,
+                    message:
+                        "Please Login to Premium Account to watch this movie",
+                    result: movie.uploadurl.trailersrc,
                 });
             }
-
-            res.cookie("accessToken", refreshResponse.token, {
-                expires: new Date(Date.now() + 60 * 60 * 1000),
-                httpOnly: true,
-                // secure: process.env.DEPLOYMENT === "local" ? false : true,
-            });
-
-            token = refreshResponse.token;
         }
 
         const user = jwt.verify(token, process.env.ACCESS_SECRET);
+        if (!user) {
+            console.log("result1", movie);
 
+            return res.status(200).json({
+                success: false,
+                message:
+                    "Unauthorized access, please login to access this content",
+                result: movie.uploadurl.trailersrc,
+            });
+        }
         let account = await Account.findById(user.id)
             .populate({
                 path: "subscriptionTier",
@@ -65,7 +68,7 @@ module.exports = async (req, res) => {
                 res.status(200).json({
                     status: false,
                     message: "Upgrade you tier to enjoy this movie",
-                    result: null,
+                    result: result.uploadurl.trailersrc,
                 });
             }
         }
