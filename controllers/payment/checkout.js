@@ -1,6 +1,6 @@
 // Create Checkout Session endpoint
 const Stripe = require("stripe");
-const { Payment, User, Tier } = require("../../models");
+const { Payment, Tier } = require("../../models");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
