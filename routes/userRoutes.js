@@ -18,7 +18,8 @@ const {
     getSearchHistory,
     createUser, 
     deleteUser,
-    getUserDetails
+    getUserDetails, 
+    updateUserDetails
 } = require("../controllers/user");
 router.get("/", (req, res) => {
     res.send("hello");
@@ -39,4 +40,5 @@ router.delete("/favourites/:userId", deleteFromFavourites);
 router.post("/history/:userId", saveWatchHistory);
 router.get("/history/:userId", getWatchHistory);
 router.get("/details/:userId", auth,getUserDetails);
+router.put("/details", auth,updateUserDetails);
 module.exports = router;
