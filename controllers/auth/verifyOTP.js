@@ -82,8 +82,12 @@ const verifyOTP = async (req, res) => {
 
             await activeLoginInstance.save();
 
+            console.log(activeLoginInstance);
+
             user.activeLogins.push(activeLoginInstance._id);
             await Account.findByIdAndUpdate(user._id, user).exec();
+
+            console.log(await Account.findById(user._id).exec());
 
             const newUser = await Account.findOne({ email }).select("-password").populate({
                 path: "subscriptionTier",

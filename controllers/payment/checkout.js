@@ -90,7 +90,7 @@ async function checkout(req, res) {
         res.json({ sessionId: session.id, session });
     } catch (error) {
         console.error("Error creating checkout session:", error);
-        res.status(500).json({ error: "Failed to create checkout session" });
+        res.status(500).json({ message: "Failed to create checkout session", error});
     }
 }
 module.exports = checkout;
