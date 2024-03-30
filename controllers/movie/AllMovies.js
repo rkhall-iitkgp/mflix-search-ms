@@ -51,4 +51,4 @@ async function allmovies(req, res) {
     }
 };
 
-module.exports =allmovies
+module.exports = allmovies

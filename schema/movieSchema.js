@@ -14,8 +14,8 @@ const movieSchema = mongoose.Schema({
     directors: [{ type: String }],
     writers: [{ type: String }],
     awards: { wins: Number, nominations: Number, text: String },
-    lastUpdated: { type: Date },
-    year: { type: Number },
+    lastupdated: { type: Date },
+    year: { type: String },
     imdb: {
         rating: { type: Number },
         votes: { type: Number },
@@ -41,8 +41,8 @@ const movieSchema = mongoose.Schema({
         lastupdated: { type: Date },
     },
     poster: { type: String },
-    plot_embedding: { type: Array },
-    fullplot_embedding: { type: Array },
+    plot_embedding: {type: Array},
+    fullplot_embedding: {type: Array},
 });
 
 module.exports = movieSchema;
