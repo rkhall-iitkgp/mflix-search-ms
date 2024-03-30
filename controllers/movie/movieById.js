@@ -1,19 +1,53 @@
+const { refresh } = require("../../middlewares/authMiddle");
 const { Movie, User } = require("../../models");
 const jwt = require("jsonwebtoken");
 
 async function moviesbyid(req, res) {
     try {
         const { id } = req.params;
-        let result = await Movie.findById(id).select(
-            "-plot_embedding -fullplot_embedding -embedding",
-        ).exec();
+        let result = await Movie.findById(id)
+            .select("-plot_embedding -fullplot_embedding -embedding")
+            .exec();
         if (req.body.userId) {
-            const decoded = jwt.verify(req.cookies.accessToken, process.env.ACCESS_SECRET);
+            let token = req.cookies.accessToken;
+            const refreshToken = req.cookies.refreshToken;
 
-            if(!decoded) {
-                return res.status(401).json({
-                    status: false,
-                    message: "Unauthorized",
+            if (!refreshToken) {
+                res.clearCookie("accessToken");
+                return res.status(200).json({
+                    status: true,
+                    result,
+                });
+            }
+
+            if (!token) {
+                const refreshResponse = await refresh(refreshToken);
+                if (!refreshResponse.success) {
+                    res.clearCookie("refreshToken");
+                    return res.status(200).json({
+                        status: true,
+                        result,
+                    });
+                }
+
+                res.cookie("accessToken", refreshResponse.token, {
+                    expires: new Date(Date.now() + 60 * 60 * 1000),
+                    httpOnly: true,
+                    // secure: process.env.DEPLOYMENT === "local" ? false : true,
+                });
+
+                token = refreshResponse.token;
+            }
+
+            const decoded = jwt.verify(
+                req.cookies.accessToken,
+                process.env.ACCESS_SECRET,
+            );
+
+            if (!decoded) {
+                return res.status(200).json({
+                    status: true,
+                    result,
                 });
             }
 
@@ -32,7 +66,7 @@ async function moviesbyid(req, res) {
                 if (movie.movie.toString() === id) {
                     result.inFavorites = true;
                 }
-            })
+            });
         }
         res.status(200).json({
             status: true,
@@ -44,6 +78,6 @@ async function moviesbyid(req, res) {
             message: "Error: " + error.message,
         });
     }
-};
 
-module.exports = moviesbyid
+}
+module.exports = moviesbyid;
