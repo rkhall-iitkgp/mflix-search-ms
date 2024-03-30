@@ -39,6 +39,6 @@ router.get("/favourites/:userId", getFavourites);
 router.delete("/favourites/:userId", deleteFromFavourites);
 router.post("/history/:userId", saveWatchHistory);
 router.get("/history/:userId", getWatchHistory);
-router.get("/details/:userId", auth,getUserDetails);
+router.get("/details", auth,getUserDetails);
 router.put("/details", auth,updateUserDetails);
 module.exports = router;
