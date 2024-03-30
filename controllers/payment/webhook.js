@@ -20,11 +20,11 @@ async function webhook(req, res) {
 
             console.log(session, userId, expiredOn)
             // Find the user based on userId
-            const userPayment = await Payment.findOne({ userId: userId });
+            const userPayment = await Payment.findOne({ accountId: userId }).exec();
             console.log("Usr payment ", userPayment)
             if (userPayment) {
                 const updatedPayment = await Payment.findOneAndUpdate(
-                    { userId: userId },
+                    { accountId: userId },
                     {
                         $set: {
                             //stripeCustomerId: session.customer,
