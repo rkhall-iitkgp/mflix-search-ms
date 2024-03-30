@@ -38,6 +38,7 @@ const removeActiveLogin = async (req, res) => {
 
 const getActiveLogins = async (req, res) => {
     try {
+        console.log(req.user);
         const account = await Account.findOne({ email: req.user.email }).exec();
         if (!account) {
             return res.status(401).json({
