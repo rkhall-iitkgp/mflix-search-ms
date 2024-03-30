@@ -1,15 +1,17 @@
-const { Movie } = require("../../models");
+const { Movie, Account } = require("../../models");
 
 module.exports = async (req, res) => {
     try {
         const { user } = req;
-        const account = await Account.findById(req.user.id)
+        let account = await Account.findById(req.user.id)
             .populate({
                 path: "subscriptionTier",
                 populate: { path: "tier", model: "tiers" }
             })
-            .exec().toObject();
-        if (account.subscriptionTier.tier.ref === "premium") {
+            .exec()
+
+        account = account.toObject();
+        if (account.subscriptionTier.tier.name === "Premium") {
             const { id } = req.params;
             const result = await Movie.findById(id)
                 .select({
