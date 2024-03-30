@@ -6,7 +6,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 async function checkout(req, res) {
     try {
-        const { product, user } = req.body;
+        const { product } = req.body;
+        const user = req.user;
         // check for userId exist or not if not return
 
         if (!user) {
@@ -61,6 +62,9 @@ async function checkout(req, res) {
             customer = existingPayment.stripeCustomerId;
         }
 
+        const success_url = `${process.env.FRONTEND_URL}/userprofile`;
+        const cancel_url = `${process.env.FRONTEND_URL}/pricing?success=false`;
+
         const session = await stripe.checkout.sessions.create({
             line_items: [
                 {
@@ -78,8 +82,8 @@ async function checkout(req, res) {
             customer: customer.id, //customerid of stripe
             payment_method_types: ["card"],
             mode: "payment",
-            success_url: `${process.env.FRONTEND_URL}/userprofile`, // Redirect to frontend success page
-            cancel_url: `${process.env.FRONTEND_URL}/pricing`, // Redirect to frontend cancel page
+            success_url: success_url, // Redirect to frontend success page
+            cancel_url: cancel_url, // Redirect to frontend cancel page
             metadata: {
                 userId: user.id,
                 expiredOn: renewalDate,
