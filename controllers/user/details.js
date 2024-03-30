@@ -45,7 +45,10 @@ const updateUserDetails = async (req, res) => {
         const {name, phone} = req.body;
         const {email} = req.user;
 
-        const user = await Account.findOne({email}).exec();
+        const user = await Account.findOne({email}).populate({
+            path:"subscriptionTier", 
+            populate: {path: "tier", model: "tiers"}
+        }).exec();
         if(!user){
             return res.status(404).json({
                 success: false,
