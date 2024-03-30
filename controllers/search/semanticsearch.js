@@ -81,6 +81,8 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
             };
         }
 
+        console.log(agg)
+
 
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
@@ -111,6 +113,8 @@ async function SemanticSearch(req, res) {
                 message: "Error: " + "Query length is too small",
             });
         }
+
+        filters = filters || {};
 
         if (
             isNaN(parseInt(count)) ||
