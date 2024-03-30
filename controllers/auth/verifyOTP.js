@@ -75,20 +75,6 @@ const verifyOTP = async (req, res) => {
             user.userProfiles.push(userProfile._id);
             await user.save();
 
-            const activeLoginInstance = new ActiveLogin({
-                account: user._id,
-                sessionId: req.cookies.refreshToken,
-            });
-
-            await activeLoginInstance.save();
-
-            console.log(activeLoginInstance);
-
-            user.activeLogins.push(activeLoginInstance._id);
-            await Account.findByIdAndUpdate(user._id, user).exec();
-
-            console.log(await Account.findById(user._id).exec());
-
             const newUser = await Account.findOne({ email }).select("-password").populate({
                 path: "subscriptionTier",
                 populate: { path: "tier", model: "tiers" },
@@ -104,6 +90,19 @@ const verifyOTP = async (req, res) => {
             const refreshToken = jwt.sign(payload, process.env.REFRESH_SECRET, {
                 expiresIn: process.env.REFRESH_EXPIRE_TIME,
             });
+
+            const activeLoginInstance = new ActiveLogin({
+                account: user._id,
+                sessionId: refreshToken, 
+                loginTime: new Date(),
+                ipAddress: req.ip,
+                userAgent: req.headers["user-agent"],
+            });
+
+            await activeLoginInstance.save();
+
+            user.activeLogins.push(activeLoginInstance._id);
+            await Account.findByIdAndUpdate(user._id, user).exec();
 
             res.cookie("accessToken", token, {
                 httpOnly: true,
