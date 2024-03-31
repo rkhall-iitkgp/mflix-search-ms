@@ -31,18 +31,21 @@ async function getSearchHistory(req, res) {
 
 async function saveSearch(user, type, search) {
     try {
-        const doc = await User.findById(user);
-        const result = doc.searchHistory;
-        result.push({
-            name: arr[type],
-            query: search,
-        });
+        const doc = await User.findByIdAndUpdate(
+            { _id: user },
+            {
+                $push: {
+                    searchHistory: {
+                        type: arr[type],
+                        query: search,
+                        date: new Date(),
+                    },
+                },
+            },
+            { new: true },
+        );                  
+        return doc.searchHistory;
 
-        let newdoc = await User.findByIdAndUpdate(
-            user,
-            { searchHistory: result },
-        )
-        return newdoc.searchHistory;
     } catch (error) {
         console.log("Error: ", error);
         return error;
