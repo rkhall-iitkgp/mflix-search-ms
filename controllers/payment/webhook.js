@@ -21,7 +21,6 @@ async function webhook(req, res) {
             console.log(session, userId, expiredOn)
             // Find the user based on userId
             const userPayment = await Payment.findOne({ accountId: userId }).exec();
-            console.log("Usr payment ", userPayment)
             if (userPayment) {
                 const updatedPayment = await Payment.findOneAndUpdate(
                     { accountId: userId },
@@ -37,13 +36,25 @@ async function webhook(req, res) {
                     { new: true },
                 );
 
-                console.log("Update Payment", updatedPayment)
                 if (updatedPayment) {
                     const updatedUser = await Account.findOneAndUpdate(
                         { _id: userId },
                         {
-                            $set: {
+                            $push: {
                                 payments: updatedPayment._id,
+                            },
+                        },
+                        { new: true },
+                    );
+
+                    await Account.findOneAndUpdate(
+                        { _id: userId },
+                        {
+                            $set: {
+                                subscriptionTier: {
+                                    tier: updatedPayment.tier,
+                                    bill: updatedPayment._id,
+                                },
                             },
                         },
                         { new: true },
