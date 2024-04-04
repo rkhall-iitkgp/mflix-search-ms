@@ -13,7 +13,6 @@ require("./database")();
 const { connectMlModel } = require("./ml_model");
 connectMlModel();
 const cors = require("cors");
-app.use(express.json());
 app.use(morgan("tiny"));
 
 app.use(
@@ -21,14 +20,20 @@ app.use(
         secret: process.env.REFRESH_SECRET,
         resave: false,
         saveUninitialized: true,
+        cookie: {
+            secure: true, 
+            sameSite: 'none'
+        }
     }),
 );
 
 app.use(
     cors({
-        origin: process.env.FRONTEND_URL || "http://localhost:3000",
+        origin: ["http://localhost:3000", "http://127.0.0.1:3000", "https://mflix-platform.vercel.app", "https://mflix-admin-dashboard.vercel.app"], 
+        credentials: true,
     }),
 );
+
 
 // Redis Server connection
 const { client } = require("./redis");
@@ -40,7 +45,6 @@ try {
     console.log(e);
 }
 
-app.use(express.json());
 
 app.use((req, res, next) => {
     if (req.originalUrl === "/payment/stripe/webhook") {
@@ -67,6 +71,7 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRouter);
 app.use("/search", searchRouter);
+app.use("/admin", adminRouter);
 app.use("/chatbot", chatbotRouter);
 app.use("/admin", adminRouter);
 app.use("/movies", movieRouter);

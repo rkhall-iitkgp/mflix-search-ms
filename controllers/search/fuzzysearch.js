@@ -3,7 +3,7 @@ const { saveSearch } = require("../user");
 
 const applyFilters = (filters) => {
     let agg = [];
-    if (filters.year.start && filters.year.end) {
+    if (filters.year && filters.year.start && filters.year.end) {
         agg.push({
             $match: {
                 year: {
@@ -14,7 +14,7 @@ const applyFilters = (filters) => {
         });
     }
 
-    if (filters.rating.low && filters.rating.high) {
+    if (filters.rating && filters.rating.low && filters.rating.high) {
         agg.push({
             $match: {
                 "imdb.rating": {
@@ -25,37 +25,37 @@ const applyFilters = (filters) => {
         });
     }
 
-    if (filters.languages.length > 0) {
+    if (filters.languages && filters.languages.length > 0) {
         agg.push({
             $match: {
                 languages: {
-                    $in: [filters.languages],
+                    $in: filters.languages
                 },
             },
         });
     }
 
-    if (filters.countries.length > 0) {
+    if (filters.countries && filters.countries.length > 0) {
         agg.push({
             $match: {
                 countries: {
-                    $in: [filters.countries],
+                    $in: filters.countries,
                 },
             },
         });
     }
 
-    if (filters.genres.length > 0) {
+    if (filters.genres && filters.genres.length > 0) {
         agg.push({
             $match: {
                 genres: {
-                    $in: [filters.genres],
+                    $in: filters.genres,
                 },
             },
         });
     }
 
-    if (filters.type.length > 0) {
+    if (filters.type && filters.type.length > 0) {
         agg.push({
             $match: {
                 type: {
@@ -66,10 +66,6 @@ const applyFilters = (filters) => {
     }
 
     agg.push({
-        $limit: 10,
-    });
-
-    agg.push({
         $project: {
             score: { $meta: "searchScore" },
             _id: 1,
@@ -77,10 +73,12 @@ const applyFilters = (filters) => {
             title: 1,
             genres: 1,
             "imdb.rating": 1,
-            "tomatoes.viewer.rating": 1,
+            "tomatoes.viewer.meter": 1,
             released: 1,
             runtime: 1,
             countries: 1,
+            tier: 1,
+            languages: 1,
         },
     });
 
@@ -93,31 +91,9 @@ async function FuzzySearch(req, res) {
             query,
             count = 10,
             page = 1,
-            start,
-            end,
-            low,
-            high,
-            language,
-            country,
-            genre,
-            type,
         } = req.query;
-        let { userId } = req.body;
-
-        let filters = {
-            year: {
-                start: start || 0,
-                end: end || 2024,
-            },
-            rating: {
-                low: low || 0,
-                high: high || 10,
-            },
-            languages: language || "",
-            countries: country || "",
-            genres: genre || "",
-            type: type || "",
-        };
+        let { userId, filters } = req.body;
+        if(!filters) filters = {};
 
         if (
             isNaN(parseInt(count)) ||
@@ -161,9 +137,9 @@ async function FuzzySearch(req, res) {
                                         path: "title",
                                         query: query,
                                         fuzzy: {
-                                            maxEdits: 2,
-                                            prefixLength: 0,
-                                            maxExpansions: 10,
+                                            maxEdits: 1,
+                                            prefixLength: 3,
+                                            maxExpansions: 50,
                                         },
                                     },
                                 },
@@ -172,9 +148,9 @@ async function FuzzySearch(req, res) {
                                         path: "directors",
                                         query: query,
                                         fuzzy: {
-                                            maxEdits: 1,
-                                            prefixLength: 0,
-                                            maxExpansions: 10,
+                                            maxEdits: 2,
+                                            prefixLength: 3,
+                                            maxExpansions: 50,
                                         },
                                     },
                                 },
@@ -183,9 +159,9 @@ async function FuzzySearch(req, res) {
                                         path: "cast",
                                         query: query,
                                         fuzzy: {
-                                            maxEdits: 1,
-                                            prefixLength: 0,
-                                            maxExpansions: 10,
+                                            maxEdits: 2,
+                                            prefixLength: 3,
+                                            maxExpansions: 50,
                                         },
                                     },
                                 },
@@ -209,12 +185,10 @@ async function FuzzySearch(req, res) {
             });
         }
 
-        console.log(agg);
-
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
         const totalCount = output.totalCount[0]?.count;
-        if (userId != null) saveSearch(userId, 0, query);
+        if (userId && userId.length) saveSearch(userId, 0, query);
         if (!totalCount || isNaN(totalCount))
             return res.status(200).json({
                 status: true,

@@ -17,7 +17,9 @@ const {
     getWatchlist,
     getSearchHistory,
     createUser, 
-    deleteUser
+    deleteUser,
+    getUserDetails, 
+    updateUserDetails
 } = require("../controllers/user");
 router.get("/", (req, res) => {
     res.send("hello");
@@ -37,4 +39,6 @@ router.get("/favourites/:userId", getFavourites);
 router.delete("/favourites/:userId", deleteFromFavourites);
 router.post("/history/:userId", saveWatchHistory);
 router.get("/history/:userId", getWatchHistory);
+router.get("/details", auth,getUserDetails);
+router.put("/details", auth,updateUserDetails);
 module.exports = router;

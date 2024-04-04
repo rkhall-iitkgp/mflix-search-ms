@@ -1,5 +1,5 @@
 const express = require("express");
-const { checkout, webhook } = require("../controllers/payment");
+const { checkout, webhook, getPaymentDetails } = require("../controllers/payment");
 const { auth } = require("../middlewares");
 const router = express.Router();
 
@@ -11,6 +11,8 @@ router.post(
     express.raw({ type: "application/json" }),
     webhook,
 );
+
+router.get("/details", getPaymentDetails);
 // //check payment status
 // router.get("/status")
 

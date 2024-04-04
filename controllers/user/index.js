@@ -17,6 +17,9 @@ const {
     deleteSearch,
 } = require("./searchHistory");
 const { saveWatchHistory, getWatchHistory } = require("./watchHistory");
+
+const {getUserDetails, updateUserDetails} = require('./details')
+
 module.exports = {
     CreateFilter,
     DeleteFilter,
@@ -34,4 +37,6 @@ module.exports = {
     getWatchHistory,
     getWatchlist,
     getFavourites,
+    getUserDetails, 
+    updateUserDetails
 };

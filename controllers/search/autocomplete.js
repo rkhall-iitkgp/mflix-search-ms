@@ -4,7 +4,7 @@ async function AutoComplete(req, res) {
     try {
         let { query, count = 5 } = req.query;
 
-        if (!query || query.length < 3) {
+        if (!query) {
             return res.status(400).json({
                 status: false,
                 message: "Error: " + "Query length is too small",
@@ -66,33 +66,39 @@ async function AutoComplete(req, res) {
         ];
         const result = await Movie.aggregate(agg);
 
+        dist = {}
+        let results = []
         result.forEach((movie) => {
             const highlights = movie.highlights;
             let maxScore = 0;
             let maxPath = "";
             let maxText = "";
-            let maxNext = "";
             highlights.forEach((highlight) => {
                 if (highlight.score > maxScore) {
                     maxScore = highlight.score;
                     maxPath = highlight.path;
-                    maxText = highlight.texts[0].value;
-                    maxNext = highlight.texts[1] ? highlight.texts[1].value : "";
+                    maxText = "";
+                    highlight.texts.forEach((text) => {
+                        maxText += text.value ;
+                    });
                 }
             });
-            movie.highlight = {
-                path: maxPath,
-                text: maxText,
-                next: maxNext,
-            };
-            delete movie.highlights;
-        }
-        );
+            if(!dist[maxText]){
+                dist[maxText] = 1;
+                movie.highlight = {
+                    path: maxPath,
+                    text: maxText,
+                };
+                delete movie.highlights;
+                results.push(movie);
+            }
+        });
 
         res.status(200).json({
             status: true,
-            result,
+            result: results,
         });
+
     } catch (error) {
         console.log("Error: ", error);
         res.status(500).json({

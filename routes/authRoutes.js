@@ -10,17 +10,16 @@ const {
     getActiveLogins,
     removeActiveLogin,
     verify,
+    resendOTP
 } = require("../controllers/auth");
 
-// login into application
 router.post("/login", login);
-// send otp for Register and Reset Password
 router.post("/sendOTP", sendOTP);
-// verify otp for Register and Reset Password
 router.post("/verifyOTP", verifyOTP);
 router.post("/logout", auth, logout);
 router.post("/removeActiveLogin", auth, removeActiveLogin);
 router.get("/getActiveLogins", auth, getActiveLogins);
 router.get("/verify", verify);
+router.post("/resendOTP", resendOTP)
 
 module.exports = router;

@@ -1,6 +1,6 @@
 const { Movie } = require("../../models");
 
-module.exports = async (req, res) => {
+async function allmovies(req, res) {
     try {
         let { count = 10, page = 1 } = req.query;
 
@@ -50,3 +50,5 @@ module.exports = async (req, res) => {
         });
     }
 };
+
+module.exports = allmovies

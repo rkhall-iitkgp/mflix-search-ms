@@ -1,14 +1,13 @@
 // Create Checkout Session endpoint
 const Stripe = require("stripe");
-const { Payment, User, Tier } = require("../../models");
+const { Payment, Tier } = require("../../models");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 async function checkout(req, res) {
-    const { user } = req;
-    const { product } = req.body;
-    const { redirectURL } = req.params;
     try {
+        const { product } = req.body;
+        const user = req.user;
         // check for userId exist or not if not return
 
         if (!user) {
@@ -63,6 +62,9 @@ async function checkout(req, res) {
             customer = existingPayment.stripeCustomerId;
         }
 
+        const success_url = `${process.env.FRONTEND_URL}/userprofile`;
+        const cancel_url = `${process.env.FRONTEND_URL}/pricing?success=false`;
+
         const session = await stripe.checkout.sessions.create({
             line_items: [
                 {
@@ -80,8 +82,8 @@ async function checkout(req, res) {
             customer: customer.id, //customerid of stripe
             payment_method_types: ["card"],
             mode: "payment",
-            success_url: redirectURL || process.env.FRONTEND_URL, // Redirect to frontend success page
-            cancel_url: redirectURL || process.env.FRONTEND_URL, // Redirect to frontend cancel page
+            success_url: success_url, // Redirect to frontend success page
+            cancel_url: cancel_url, // Redirect to frontend cancel page
             metadata: {
                 userId: user.id,
                 expiredOn: renewalDate,
@@ -90,7 +92,10 @@ async function checkout(req, res) {
         res.json({ sessionId: session.id, session });
     } catch (error) {
         console.error("Error creating checkout session:", error);
-        res.status(500).json({ error: "Failed to create checkout session" });
+        res.status(500).json({
+            message: "Failed to create checkout session",
+            error,
+        });
     }
 }
 module.exports = checkout;

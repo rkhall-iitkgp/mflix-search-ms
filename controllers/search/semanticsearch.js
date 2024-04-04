@@ -23,10 +23,11 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
                     title: 1,
                     genres: 1,
                     "imdb.rating": 1,
-                    "tomatoes.viewer.rating": 1,
+                    "tomatoes.viewer.meter": 1,
                     released: 1,
                     runtime: 1,
                     countries: 1,
+                    tier: 1,
                 },
             },
             {
@@ -42,34 +43,34 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
         ];
         let filter = {};
 
-        if (filters.year.length > 0) {
+        if (filters.year && filters.year.length > 0) {
             filter["year"] = {
                 $gte: parseInt(filters.year.start),
                 $lte: parseInt(filters.year.end),
             };
         }
 
-        if (filters.rating.low && filters.rating.high) {
+        if (filters.rating && filters.rating.low && filters.rating.high) {
             filter["imdb.rating"] = {
                 $gt: parseFloat(filters.rating.low),
                 $lt: parseFloat(filters.rating.high),
             };
         }
 
-        if (filters.languages.length > 0) {
+        if (filters.languages && filters.languages.length > 0) {
             filter["languages"] = { $in: filters.languages };
         }
 
-        if (filters.countries.length > 0) {
+        if (filters.countries && filters.countries.length > 0) {
             filter["countries"] = { $in: filters.countries };
         }
 
-        if (filters.genres.length > 0) {
+        if (filters.genres && filters.genres.length > 0) {
             filter["genres"] = { $in: filters.genres };
         }
 
-        if (filters.type.length > 0) {
-            filter["type"] = { $in: filters.type };
+        if (filters.type && filters.type.length > 0) {
+            filter["type"] = { $in: [filters.type] };
         }
 
         if (Object.keys(filter).length > 0) {
@@ -79,6 +80,9 @@ async function findSimilarDocuments(embedding, count, page, skip, filters) {
                 })),
             };
         }
+
+        console.log(agg)
+
 
         const output = (await Movie.aggregate(agg))[0];
         let results = output.results;
@@ -99,31 +103,9 @@ async function SemanticSearch(req, res) {
             query,
             count = 10,
             page = 1,
-            start,
-            end,
-            low,
-            high,
-            language,
-            country,
-            genre,
-            type,
         } = req.query;
         const decodedQuery = decodeURIComponent(query);
-        let { userId } = req.body;
-        let filters = {
-            year: {
-                start: start || 0,
-                end: end || 2024,
-            },
-            languages: language || "",
-            countries: country || "",
-            genres: genre || "",
-            type: type || "",
-            rating: {
-                low: low || 0,
-                high: high || 10,
-            },
-        };
+        let { userId, filters } = req.body;
 
         if (!decodedQuery || decodedQuery.split(" ").length < 5) {
             return res.status(400).json({
@@ -131,6 +113,8 @@ async function SemanticSearch(req, res) {
                 message: "Error: " + "Query length is too small",
             });
         }
+
+        filters = filters || {};
 
         if (
             isNaN(parseInt(count)) ||
@@ -157,7 +141,7 @@ async function SemanticSearch(req, res) {
             skip,
             filters,
         );
-        if (userId != null) saveSearch(userId, 1, query);
+        if (userId && userId.length) saveSearch(userId, 1, query);
         res.status(200).json({ status: true, ...documents });
     } catch (err) {
         console.error(err);

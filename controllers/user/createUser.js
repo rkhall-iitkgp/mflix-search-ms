@@ -45,11 +45,16 @@ module.exports = async (req, res) => {
         existingAccount.userProfiles.push(newProfile);
         await existingAccount.save();
 
+        const newAccount = await Account.findById(accountId).populate({
+            path: "userProfiles",
+            model: "users",
+        }).exec();
+
         // Return success response
         return res.status(200).json({
             success: true,
             message: "New user profile created successfully",
-            userProfile: newProfile,
+            account: newAccount,
         });
     } catch (error) {
         console.error("Error: ", error);
